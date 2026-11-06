@@ -636,7 +636,7 @@ const columns = columnHelper.columns([
       header: "Recipe",
       cell: ({ row }) => <RecipeDetails recipe={row.original} />,
       sortFn: sortFn_text,
-      size: 320,
+      size: 312,
       minSize: 220,
       maxSize: 480,
       enableHiding: false,
@@ -673,7 +673,7 @@ const columns = columnHelper.columns([
     ),
     sortFn: sortFn_basic,
     sortDescFirst: true,
-    size: 100,
+    size: 108,
     enableGlobalFilter: false,
     meta: {
       align: "right",
@@ -892,7 +892,7 @@ function DesktopTable({ table }: { table: ForgeTable }) {
                           : "none"
                     }
                     className={cn(
-                      "relative px-2 font-normal",
+                      "relative px-3 font-normal",
                       canSort && "hover:bg-muted/60",
                       sorted && "text-primary",
                     )}
