@@ -385,7 +385,7 @@ function IngredientList({ recipe }: { recipe: PricedRecipe }) {
               </span>
               <span className="text-muted-foreground ml-0.5">×</span>
             </span>
-            <span className="truncate">{ingredient.name}</span>
+            <span className="min-w-0 break-words">{ingredient.name}</span>
           </span>
           <WikiLink name={ingredient.name} />
           <span className="text-right tabular-nums">
@@ -421,10 +421,10 @@ function RecipeDetails({ recipe }: { recipe: PricedRecipe }) {
             <ItemIcon id={recipe.outputId} />
           </span>
           <span className="min-w-0 flex-1">
-            <p className="truncate leading-tight font-semibold">
+            <p className="leading-tight font-semibold break-words">
               {recipe.name}
             </p>
-            <p className="text-muted-foreground truncate text-xs leading-4">
+            <p className="text-muted-foreground text-xs leading-4 break-words">
               <UnlockText hotm={recipe.hotm} />
             </p>
           </span>
@@ -454,7 +454,7 @@ function ConfidenceInfoPopover() {
           <Button
             type="button"
             variant="ghost"
-            size="icon-sm"
+            size="icon-xs"
             aria-label="About the confidence score"
             className="text-muted-foreground"
           >
@@ -636,7 +636,7 @@ const columns = columnHelper.columns([
       header: "Recipe",
       cell: ({ row }) => <RecipeDetails recipe={row.original} />,
       sortFn: sortFn_text,
-      size: 280,
+      size: 312,
       minSize: 220,
       maxSize: 480,
       enableHiding: false,
@@ -654,7 +654,7 @@ const columns = columnHelper.columns([
       </MetricBar>
     ),
     sortFn: sortFn_basic,
-    size: 100,
+    size: 80,
     enableGlobalFilter: false,
     meta: {
       align: "right",
@@ -673,7 +673,7 @@ const columns = columnHelper.columns([
     ),
     sortFn: sortFn_basic,
     sortDescFirst: true,
-    size: 110,
+    size: 108,
     enableGlobalFilter: false,
     meta: {
       align: "right",
@@ -704,7 +704,7 @@ const columns = columnHelper.columns([
     ),
     sortFn: sortFn_basic,
     sortDescFirst: true,
-    size: 120,
+    size: 130,
     enableGlobalFilter: false,
     meta: { align: "right", cellClassName: "text-right" },
   }),
@@ -720,7 +720,7 @@ const columns = columnHelper.columns([
       </MetricBar>
     ),
     sortFn: sortFn_basic,
-    size: 100,
+    size: 80,
     enableGlobalFilter: false,
     meta: {
       align: "right",
@@ -898,7 +898,7 @@ function DesktopTable({ table }: { table: ForgeTable }) {
                     )}
                   >
                     {header.isPlaceholder ? null : (
-                      <div className="flex w-full min-w-0 items-center gap-1">
+                      <div className="flex w-full min-w-0 items-center">
                         <div
                           role={canSort ? "button" : undefined}
                           tabIndex={canSort ? 0 : undefined}
@@ -1007,7 +1007,7 @@ function MobileCards({ table }: { table: ForgeTable }) {
                   <span className="flex w-7 shrink-0 items-center justify-center">
                     <ItemIcon id={recipe.outputId} />
                   </span>
-                  <p className="truncate text-sm font-semibold">
+                  <p className="min-w-0 text-sm font-semibold break-words">
                     {recipe.name}
                   </p>
                 </CollapsibleTrigger>
@@ -1028,8 +1028,8 @@ function MobileCards({ table }: { table: ForgeTable }) {
                       /hr
                     </span>
                   </div>
-                  <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
-                    <span className="truncate">
+                  <div className="text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm">
+                    <span className="min-w-0 break-words">
                       {recipe.section.replaceAll("_", " ")},{" "}
                       <UnlockText hotm={recipe.hotm} />
                       {", "}
