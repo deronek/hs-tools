@@ -1,6 +1,8 @@
-# hs-tools
+# HS Tools
 
-Compare Hypixel SkyBlock forge recipe profits using bazaar prices. This proof of concept prices 30 of 119 recipes. See [recipe coverage](docs/recipes.md) and [design notes](docs/design.md).
+HS Tools is a collection of tools for Hypixel SkyBlock players.
+
+The current tool is the Forge Profit Calculator, which compares forge recipe profits using live bazaar pricing. It covers 30 of 119 recipes today. See [recipe coverage](docs/recipes.md) and [design notes](docs/design.md).
 
 ## Development
 
@@ -16,11 +18,13 @@ Open `http://localhost:3000/forge`. The root URL redirects there.
 Useful commands:
 
 ```sh
-pnpm build      # production build
-pnpm start      # serve the production build
-pnpm test:unit  # run pricing tests
-pnpm lint       # Prettier check, ESLint, and tsc
-pnpm format     # write Prettier changes
+pnpm build         # production build
+pnpm start         # serve the production build
+pnpm data:update   # build recipe data, downloading missing sources
+pnpm icons:update  # refresh item icons
+pnpm test:unit     # run pricing tests
+pnpm lint          # Prettier check, ESLint, and tsc
+pnpm format        # write Prettier changes
 ```
 
 ## Tech stack
