@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -21,29 +22,66 @@ if (ids.some((id) => typeof id !== "string" || !/^[A-Z0-9_]+$/.test(id))) {
 
 const icons = [];
 for (const id of ids) {
-  const response = await fetch(
-    `https://sky.shiiyu.moe/api/item/${encodeURIComponent(id)}`,
-    { signal: AbortSignal.timeout(60_000) },
-  );
-  if (!response.ok) {
-    throw new Error(`Icon download failed for ${id}: HTTP ${response.status}`);
-  }
+  let image;
+  let invalidResponse = "";
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const response = await fetch(
+      `https://sky.shiiyu.moe/api/item/${encodeURIComponent(id)}`,
+      {
+        headers: { Accept: "image/webp" },
+        signal: AbortSignal.timeout(60_000),
+      },
+    );
+    if (!response.ok) {
+      invalidResponse = `HTTP ${response.status}`;
+    } else {
+      const candidate = Buffer.from(await response.arrayBuffer());
+      const isWebp =
+        candidate.toString("ascii", 0, 4) === "RIFF" &&
+        candidate.toString("ascii", 8, 12) === "WEBP";
 
-  const image = Buffer.from(await response.arrayBuffer());
-  if (
-    response.headers.get("content-type")?.split(";")[0] !== "image/webp" ||
-    image.toString("ascii", 0, 4) !== "RIFF" ||
-    image.toString("ascii", 8, 12) !== "WEBP"
-  ) {
-    throw new Error(`Icon download for ${id} is not a WebP image.`);
+      if (isWebp) {
+        image = candidate;
+        break;
+      }
+
+      invalidResponse = `content-type ${response.headers.get("content-type") ?? "missing"}, signature ${candidate.subarray(0, 12).toString("hex") || "empty"}`;
+    }
+
+    if (attempt < 3) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+  }
+  if (!image) {
+    throw new Error(
+      `Icon download for ${id} did not return WebP after 3 attempts (${invalidResponse}).`,
+    );
   }
   icons.push([id, image]);
 }
 
 const outputDirectory = "public/item-icons";
 await fs.mkdir(outputDirectory, { recursive: true });
+const itemIcons = {};
 for (const [id, image] of icons) {
-  await fs.writeFile(path.join(outputDirectory, `${id}.webp`), image);
+  const hash = createHash("sha256").update(image).digest("hex").slice(0, 16);
+  const filename = `${id}.${hash}.webp`;
+  await fs.writeFile(path.join(outputDirectory, filename), image);
+  itemIcons[id] = filename;
+}
+await fs.writeFile(
+  "src/data/item-icons.json",
+  `${JSON.stringify(itemIcons, null, 2)}\n`,
+);
+
+const currentFiles = new Set(Object.values(itemIcons));
+for (const filename of await fs.readdir(outputDirectory)) {
+  if (
+    /^[A-Z0-9_]+\.[a-f0-9]{16}\.(webp|png)$/.test(filename) &&
+    !currentFiles.has(filename)
+  ) {
+    await fs.rm(path.join(outputDirectory, filename));
+  }
 }
 
 console.log(`Updated ${icons.length} item icons in ${outputDirectory}.`);

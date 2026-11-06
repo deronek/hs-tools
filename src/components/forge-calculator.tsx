@@ -73,8 +73,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import itemIconFiles from "@/data/item-icons.json";
 import { DEFAULT_SETTINGS, priceRecipe } from "@/lib/forge";
 import { cn, formatDuration, formatPercent, parseUnlock } from "@/lib/utils";
+
+const itemIcons: Record<string, string> = itemIconFiles;
 
 type Props = {
   recipes: Recipe[];
@@ -336,7 +339,7 @@ function ItemIcon({
     // eslint-disable-next-line @next/next/no-img-element -- keep local 16 px icons out of the image optimizer
     <img
       key={id}
-      src={`/item-icons/${encodeURIComponent(id)}.webp`}
+      src={`/item-icons/${itemIcons[id]}`}
       alt=""
       width={32}
       height={32}

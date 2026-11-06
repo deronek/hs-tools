@@ -24,7 +24,9 @@ Refresh the committed item icons separately when needed:
 pnpm icons:update
 ```
 
-The icon updater reads item IDs from `src/data/recipes.json` and writes WebP files to `public/item-icons`. Review and commit those files with recipe changes. The UI references the expected WebP path even before it exists, so an out-of-date icon set remains visible as a broken image.
+The icon updater requests WebP images for item IDs in `src/data/recipes.json`, writes content-hashed WebP files to `public/item-icons`, and updates `src/data/item-icons.json`. Review and commit the generated files with recipe changes.
+
+Vercel serves these static files from its edge cache. `next.config.ts` gives hashed icon URLs a one-year immutable TTL; changing an icon changes its URL.
 
 **Inputs**
 
