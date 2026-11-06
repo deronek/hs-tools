@@ -1,0 +1,617 @@
+[
+  {
+    "section": "Refining",
+    "name": "Refined Diamond",
+    "outputId": "REFINED_DIAMOND",
+    "outputQty": 1,
+    "durationSeconds": 28800,
+    "hotm": "II",
+    "ingredients": [
+      {
+        "name": "Enchanted Diamond Block",
+        "qty": 2,
+        "id": "ENCHANTED_DIAMOND_BLOCK"
+      }
+    ]
+  },
+  {
+    "section": "Refining",
+    "name": "Refined Mithril",
+    "outputId": "REFINED_MITHRIL",
+    "outputQty": 1,
+    "durationSeconds": 21600,
+    "hotm": "II",
+    "ingredients": [
+      {
+        "name": "Enchanted Mithril",
+        "qty": 160,
+        "id": "ENCHANTED_MITHRIL"
+      }
+    ]
+  },
+  {
+    "section": "Refining",
+    "name": "Refined Titanium",
+    "outputId": "REFINED_TITANIUM",
+    "outputQty": 1,
+    "durationSeconds": 43200,
+    "hotm": "II",
+    "ingredients": [
+      {
+        "name": "Enchanted Titanium",
+        "qty": 16,
+        "id": "ENCHANTED_TITANIUM"
+      }
+    ]
+  },
+  {
+    "section": "Refining",
+    "name": "Refined Tungsten",
+    "outputId": "REFINED_TUNGSTEN",
+    "outputQty": 1,
+    "durationSeconds": 3600,
+    "hotm": "VII Tungsten III (3)",
+    "ingredients": [
+      {
+        "name": "Enchanted Tungsten",
+        "qty": 160,
+        "id": "ENCHANTED_TUNGSTEN"
+      }
+    ]
+  },
+  {
+    "section": "Refining",
+    "name": "Refined Umber",
+    "outputId": "REFINED_UMBER",
+    "outputQty": 1,
+    "durationSeconds": 3600,
+    "hotm": "VII Umber III (3)",
+    "ingredients": [
+      {
+        "name": "Enchanted Umber",
+        "qty": 160,
+        "id": "ENCHANTED_UMBER"
+      }
+    ]
+  },
+  {
+    "section": "Forging",
+    "name": "Bejeweled Handle",
+    "outputId": "BEJEWELED_HANDLE",
+    "outputQty": 1,
+    "durationSeconds": 30,
+    "hotm": "II",
+    "ingredients": [
+      {
+        "name": "Glacite Jewel",
+        "qty": 3,
+        "id": "GLACITE_JEWEL"
+      }
+    ]
+  },
+  {
+    "section": "Forging",
+    "name": "Drill Motor",
+    "outputId": "DRILL_ENGINE",
+    "outputQty": 1,
+    "durationSeconds": 108000,
+    "hotm": "II",
+    "ingredients": [
+      {
+        "name": "Treasurite",
+        "qty": 10,
+        "id": "TREASURITE"
+      },
+      {
+        "name": "Enchanted Iron Block",
+        "qty": 1,
+        "id": "ENCHANTED_IRON_BLOCK"
+      },
+      {
+        "name": "Enchanted Redstone Block",
+        "qty": 3,
+        "id": "ENCHANTED_REDSTONE_BLOCK"
+      },
+      {
+        "name": "Golden Plate",
+        "qty": 1,
+        "id": "GOLDEN_PLATE"
+      }
+    ]
+  },
+  {
+    "section": "Forging",
+    "name": "Fuel Canister",
+    "outputId": "FUEL_TANK",
+    "outputQty": 1,
+    "durationSeconds": 36000,
+    "hotm": "II",
+    "ingredients": [
+      {
+        "name": "Enchanted Coal Block",
+        "qty": 2,
+        "id": "ENCHANTED_COAL_BLOCK"
+      }
+    ]
+  },
+  {
+    "section": "Forging",
+    "name": "Gemstone Mixture",
+    "outputId": "GEMSTONE_MIXTURE",
+    "outputQty": 1,
+    "durationSeconds": 14400,
+    "hotm": "IV",
+    "ingredients": [
+      {
+        "name": "Fine Jade Gemstone",
+        "qty": 4,
+        "id": "FINE_JADE_GEM"
+      },
+      {
+        "name": "Fine Amber Gemstone",
+        "qty": 4,
+        "id": "FINE_AMBER_GEM"
+      },
+      {
+        "name": "Fine Amethyst Gemstone",
+        "qty": 4,
+        "id": "FINE_AMETHYST_GEM"
+      },
+      {
+        "name": "Fine Sapphire Gemstone",
+        "qty": 4,
+        "id": "FINE_SAPPHIRE_GEM"
+      },
+      {
+        "name": "Sludge Juice",
+        "qty": 320,
+        "id": "SLUDGE_JUICE"
+      }
+    ]
+  },
+  {
+    "section": "Forging",
+    "name": "Glacite Amalgamation",
+    "outputId": "GLACITE_AMALGAMATION",
+    "outputQty": 1,
+    "durationSeconds": 14400,
+    "hotm": "VII Glacite III (3)",
+    "ingredients": [
+      {
+        "name": "Fine Onyx Gemstone",
+        "qty": 4,
+        "id": "FINE_ONYX_GEM"
+      },
+      {
+        "name": "Fine Aquamarine Gemstone",
+        "qty": 4,
+        "id": "FINE_AQUAMARINE_GEM"
+      },
+      {
+        "name": "Fine Citrine Gemstone",
+        "qty": 4,
+        "id": "FINE_CITRINE_GEM"
+      },
+      {
+        "name": "Fine Peridot Gemstone",
+        "qty": 4,
+        "id": "FINE_PERIDOT_GEM"
+      },
+      {
+        "name": "Enchanted Glacite",
+        "qty": 256,
+        "id": "ENCHANTED_GLACITE"
+      }
+    ]
+  },
+  {
+    "section": "Forging",
+    "name": "Golden Plate",
+    "outputId": "GOLDEN_PLATE",
+    "outputQty": 1,
+    "durationSeconds": 21600,
+    "hotm": "III",
+    "ingredients": [
+      {
+        "name": "Refined Diamond",
+        "qty": 1,
+        "id": "REFINED_DIAMOND"
+      },
+      {
+        "name": "Enchanted Gold Block",
+        "qty": 2,
+        "id": "ENCHANTED_GOLD_BLOCK"
+      },
+      {
+        "name": "Glacite Jewel",
+        "qty": 5,
+        "id": "GLACITE_JEWEL"
+      }
+    ]
+  },
+  {
+    "section": "Forging",
+    "name": "Mithril Plate",
+    "outputId": "MITHRIL_PLATE",
+    "outputQty": 1,
+    "durationSeconds": 64800,
+    "hotm": "III",
+    "ingredients": [
+      {
+        "name": "Refined Titanium",
+        "qty": 1,
+        "id": "REFINED_TITANIUM"
+      },
+      {
+        "name": "Refined Mithril",
+        "qty": 5,
+        "id": "REFINED_MITHRIL"
+      },
+      {
+        "name": "Golden Plate",
+        "qty": 1,
+        "id": "GOLDEN_PLATE"
+      },
+      {
+        "name": "Enchanted Iron Block",
+        "qty": 1,
+        "id": "ENCHANTED_IRON_BLOCK"
+      }
+    ]
+  },
+  {
+    "section": "Forging",
+    "name": "Tungsten Plate",
+    "outputId": "TUNGSTEN_PLATE",
+    "outputQty": 1,
+    "durationSeconds": 10800,
+    "hotm": "VII Tungsten VI (6)",
+    "ingredients": [
+      {
+        "name": "Refined Tungsten",
+        "qty": 4,
+        "id": "REFINED_TUNGSTEN"
+      },
+      {
+        "name": "Glacite Amalgamation",
+        "qty": 1,
+        "id": "GLACITE_AMALGAMATION"
+      }
+    ]
+  },
+  {
+    "section": "Forging",
+    "name": "Umber Plate",
+    "outputId": "UMBER_PLATE",
+    "outputQty": 1,
+    "durationSeconds": 10800,
+    "hotm": "VII Umber VI (6)",
+    "ingredients": [
+      {
+        "name": "Refined Umber",
+        "qty": 4,
+        "id": "REFINED_UMBER"
+      },
+      {
+        "name": "Glacite Amalgamation",
+        "qty": 1,
+        "id": "GLACITE_AMALGAMATION"
+      }
+    ]
+  },
+  {
+    "section": "Forging",
+    "name": "Perfect Plate",
+    "outputId": "PERFECT_PLATE",
+    "outputQty": 1,
+    "durationSeconds": 1800,
+    "hotm": "X",
+    "ingredients": [
+      {
+        "name": "Umber Plate",
+        "qty": 1,
+        "id": "UMBER_PLATE"
+      },
+      {
+        "name": "Tungsten Plate",
+        "qty": 1,
+        "id": "TUNGSTEN_PLATE"
+      },
+      {
+        "name": "Mithril Plate",
+        "qty": 1,
+        "id": "MITHRIL_PLATE"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Divan's Powder Coating",
+    "outputId": "DIVAN_POWDER_COATING",
+    "outputQty": 1,
+    "durationSeconds": 129600,
+    "hotm": "IV",
+    "ingredients": [
+      {
+        "name": "Glossy Gemstone",
+        "qty": 32,
+        "id": "GLOSSY_GEMSTONE"
+      },
+      {
+        "name": "Refined Mineral",
+        "qty": 32,
+        "id": "REFINED_MINERAL"
+      },
+      {
+        "name": "Divan Fragment",
+        "qty": 5,
+        "id": "DIVAN_FRAGMENT"
+      },
+      {
+        "name": "Enchanted Gold Block",
+        "qty": 16,
+        "id": "ENCHANTED_GOLD_BLOCK"
+      }
+    ]
+  },
+  {
+    "section": "Reforge_Stones",
+    "name": "Diamonite",
+    "outputId": "DIAMONITE",
+    "outputQty": 1,
+    "durationSeconds": 21600,
+    "hotm": "II",
+    "ingredients": [
+      {
+        "name": "Refined Diamond",
+        "qty": 3,
+        "id": "REFINED_DIAMOND"
+      }
+    ]
+  },
+  {
+    "section": "Reforge_Stones",
+    "name": "Pocket Iceberg",
+    "outputId": "POCKET_ICEBERG",
+    "outputQty": 1,
+    "durationSeconds": 21600,
+    "hotm": "II",
+    "ingredients": [
+      {
+        "name": "Glacite Jewel",
+        "qty": 5,
+        "id": "GLACITE_JEWEL"
+      }
+    ]
+  },
+  {
+    "section": "Reforge_Stones",
+    "name": "Petrified Starfall",
+    "outputId": "PETRIFIED_STARFALL",
+    "outputQty": 1,
+    "durationSeconds": 21600,
+    "hotm": "III",
+    "ingredients": [
+      {
+        "name": "Starfall",
+        "qty": 512,
+        "id": "STARFALL"
+      }
+    ]
+  },
+  {
+    "section": "Reforge_Stones",
+    "name": "Pure Mithril",
+    "outputId": "PURE_MITHRIL",
+    "outputQty": 1,
+    "durationSeconds": 21600,
+    "hotm": "III",
+    "ingredients": [
+      {
+        "name": "Refined Mithril",
+        "qty": 2,
+        "id": "REFINED_MITHRIL"
+      }
+    ]
+  },
+  {
+    "section": "Reforge_Stones",
+    "name": "Dwarven Geode",
+    "outputId": "ROCK_GEMSTONE",
+    "outputQty": 1,
+    "durationSeconds": 21600,
+    "hotm": "III",
+    "ingredients": [
+      {
+        "name": "Enchanted Cobblestone",
+        "qty": 128,
+        "id": "ENCHANTED_COBBLESTONE"
+      },
+      {
+        "name": "Treasurite",
+        "qty": 64,
+        "id": "TREASURITE"
+      }
+    ]
+  },
+  {
+    "section": "Reforge_Stones",
+    "name": "Titanium Tesseract",
+    "outputId": "TITANIUM_TESSERACT",
+    "outputQty": 1,
+    "durationSeconds": 21600,
+    "hotm": "III",
+    "ingredients": [
+      {
+        "name": "Refined Titanium",
+        "qty": 1,
+        "id": "REFINED_TITANIUM"
+      },
+      {
+        "name": "Enchanted Lapis Lazuli",
+        "qty": 16,
+        "id": "ENCHANTED_LAPIS_LAZULI"
+      }
+    ]
+  },
+  {
+    "section": "Reforge_Stones",
+    "name": "Gleaming Crystal",
+    "outputId": "GLEAMING_CRYSTAL",
+    "outputQty": 1,
+    "durationSeconds": 21600,
+    "hotm": "IV",
+    "ingredients": [
+      {
+        "name": "Glossy Gemstone",
+        "qty": 32,
+        "id": "GLOSSY_GEMSTONE"
+      },
+      {
+        "name": "Refined Mithril",
+        "qty": 1,
+        "id": "REFINED_MITHRIL"
+      },
+      {
+        "name": "Refined Diamond",
+        "qty": 2,
+        "id": "REFINED_DIAMOND"
+      }
+    ]
+  },
+  {
+    "section": "Reforge_Stones",
+    "name": "Scorched Topaz",
+    "outputId": "HOT_STUFF",
+    "outputQty": 1,
+    "durationSeconds": 21600,
+    "hotm": "IV Hard Stone IV (4)",
+    "ingredients": [
+      {
+        "name": "Enchanted Hard Stone",
+        "qty": 128,
+        "id": "ENCHANTED_HARD_STONE"
+      },
+      {
+        "name": "Flawless Topaz Gemstone",
+        "qty": 1,
+        "id": "FLAWLESS_TOPAZ_GEM"
+      }
+    ]
+  },
+  {
+    "section": "Reforge_Stones",
+    "name": "Amber Material",
+    "outputId": "AMBER_MATERIAL",
+    "outputQty": 1,
+    "durationSeconds": 21600,
+    "hotm": "VI",
+    "ingredients": [
+      {
+        "name": "Fine Amber Gemstone",
+        "qty": 12,
+        "id": "FINE_AMBER_GEM"
+      },
+      {
+        "name": "Golden Plate",
+        "qty": 1,
+        "id": "GOLDEN_PLATE"
+      }
+    ]
+  },
+  {
+    "section": "Reforge_Stones",
+    "name": "Frigid Husk",
+    "outputId": "FRIGID_HUSK",
+    "outputQty": 1,
+    "durationSeconds": 21600,
+    "hotm": "VII Glacite V (5)",
+    "ingredients": [
+      {
+        "name": "Glacite Amalgamation",
+        "qty": 4,
+        "id": "GLACITE_AMALGAMATION"
+      },
+      {
+        "name": "Flawless Onyx Gemstone",
+        "qty": 1,
+        "id": "FLAWLESS_ONYX_GEM"
+      }
+    ]
+  },
+  {
+    "section": "Other",
+    "name": "Power Crystal",
+    "outputId": "POWER_CRYSTAL",
+    "outputQty": 1,
+    "durationSeconds": 7200,
+    "hotm": "II",
+    "ingredients": [
+      {
+        "name": "Starfall",
+        "qty": 256,
+        "id": "STARFALL"
+      }
+    ]
+  },
+  {
+    "section": "Other",
+    "name": "Tungsten Key",
+    "outputId": "TUNGSTEN_KEY",
+    "outputQty": 1,
+    "durationSeconds": 30,
+    "hotm": "VII Tungsten IV (4)",
+    "ingredients": [
+      {
+        "name": "Enchanted Tungsten",
+        "qty": 192,
+        "id": "ENCHANTED_TUNGSTEN"
+      },
+      {
+        "name": "Bejeweled Handle",
+        "qty": 1,
+        "id": "BEJEWELED_HANDLE"
+      }
+    ]
+  },
+  {
+    "section": "Other",
+    "name": "Umber Key",
+    "outputId": "UMBER_KEY",
+    "outputQty": 1,
+    "durationSeconds": 30,
+    "hotm": "VII Umber IV (4)",
+    "ingredients": [
+      {
+        "name": "Enchanted Umber",
+        "qty": 192,
+        "id": "ENCHANTED_UMBER"
+      },
+      {
+        "name": "Bejeweled Handle",
+        "qty": 1,
+        "id": "BEJEWELED_HANDLE"
+      }
+    ]
+  },
+  {
+    "section": "Other",
+    "name": "Skeleton Key",
+    "outputId": "SKELETON_KEY",
+    "outputQty": 1,
+    "durationSeconds": 1800,
+    "hotm": "X",
+    "ingredients": [
+      {
+        "name": "Bejeweled Handle",
+        "qty": 1,
+        "id": "BEJEWELED_HANDLE"
+      },
+      {
+        "name": "Perfect Plate",
+        "qty": 1,
+        "id": "PERFECT_PLATE"
+      }
+    ]
+  }
+]

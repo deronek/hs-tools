@@ -1,0 +1,11 @@
+# Ignore artifacts:
+build
+coverage
+.next
+
+# Big local data files
+data/
+src/data/recipes.json
+
+# Lock file
+pnpm-lock.yaml

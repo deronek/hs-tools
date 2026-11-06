@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+build
+next-env.d.ts
+*.tsbuildinfo
+.env*
+!.env.example
+
+# Local data inputs and generated intermediates
+/data/raw/
