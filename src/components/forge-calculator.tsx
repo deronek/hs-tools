@@ -1002,13 +1002,23 @@ function MobileCards({ table }: { table: ForgeTable }) {
             className="rounded-md border p-3"
           >
             <Collapsible>
-              <CollapsibleTrigger className="group hover:bg-muted/50 -m-1 flex w-full cursor-pointer items-center gap-2 rounded-md p-1 text-left transition-colors">
-                <span className="flex w-7 shrink-0 items-center justify-center">
-                  <ItemIcon id={recipe.outputId} />
-                </span>
-                <p className="truncate text-sm font-semibold">{recipe.name}</p>
-                <ChevronDown className="text-muted-foreground ml-auto size-4 shrink-0 transition-transform group-aria-expanded:rotate-180" />
-              </CollapsibleTrigger>
+              <div className="grid grid-cols-[minmax(0,1fr)_24px_4rem] items-center gap-1">
+                <CollapsibleTrigger className="group hover:bg-muted/50 -m-1 flex min-w-0 cursor-pointer items-center gap-2 rounded-md p-1 text-left transition-colors">
+                  <span className="flex w-7 shrink-0 items-center justify-center">
+                    <ItemIcon id={recipe.outputId} />
+                  </span>
+                  <p className="truncate text-sm font-semibold">
+                    {recipe.name}
+                  </p>
+                </CollapsibleTrigger>
+                <WikiLink name={recipe.name} />
+                <CollapsibleTrigger
+                  aria-label={`Toggle ${recipe.name} details`}
+                  className="group hover:bg-muted/50 flex size-7 cursor-pointer items-center justify-center justify-self-end rounded-md transition-colors"
+                >
+                  <ChevronDown className="text-muted-foreground size-4 shrink-0 transition-transform group-aria-expanded:rotate-180" />
+                </CollapsibleTrigger>
+              </div>
               <CollapsibleContent>
                 <div className="mt-2.5 space-y-2">
                   <div className="flex items-center justify-between gap-3 text-sm">
