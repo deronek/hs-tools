@@ -32,6 +32,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronsUpDown,
+  ExternalLink,
   Info,
   RotateCcw,
   Search,
@@ -76,6 +77,7 @@ import {
 import itemIconFiles from "@/data/item-icons.json";
 import { DEFAULT_SETTINGS, priceRecipe } from "@/lib/forge";
 import { cn, formatDuration, formatPercent, parseUnlock } from "@/lib/utils";
+import { getWikiItemUrl } from "@/lib/wiki";
 
 const itemIcons: Record<string, string> = itemIconFiles;
 
@@ -350,6 +352,21 @@ function ItemIcon({
   );
 }
 
+function WikiLink({ name }: { name: string }) {
+  return (
+    <a
+      href={getWikiItemUrl(name)}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Open ${name} on the Hypixel SkyBlock Wiki`}
+      title={`Open ${name} on the Hypixel SkyBlock Wiki`}
+      className="text-muted-foreground hover:text-primary focus-visible:ring-ring inline-flex shrink-0 rounded-sm p-1 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+    >
+      <ExternalLink aria-hidden="true" className="size-4" />
+    </a>
+  );
+}
+
 function IngredientList({ recipe }: { recipe: PricedRecipe }) {
   return (
     <div className="space-y-1.5">
@@ -368,7 +385,10 @@ function IngredientList({ recipe }: { recipe: PricedRecipe }) {
               </span>
               <span className="text-muted-foreground ml-0.5">×</span>
             </span>
-            <span className="truncate">{ingredient.name}</span>
+            <span className="flex min-w-0 items-center gap-1">
+              <span className="truncate">{ingredient.name}</span>
+              <WikiLink name={ingredient.name} />
+            </span>
           </span>
           <span className="tabular-nums">
             <Coins value={ingredient.cost} />
@@ -397,18 +417,23 @@ function UnlockText({ hotm }: { hotm: string }) {
 function RecipeDetails({ recipe }: { recipe: PricedRecipe }) {
   return (
     <Collapsible>
-      <CollapsibleTrigger className="group hover:bg-muted/50 -m-1 flex w-full cursor-pointer items-center gap-2 rounded-md p-1 text-left transition-colors">
-        <span className="flex w-7 shrink-0 items-center justify-center">
-          <ItemIcon id={recipe.outputId} />
-        </span>
-        <span className="min-w-0 flex-1">
-          <p className="truncate leading-tight font-semibold">{recipe.name}</p>
-          <p className="text-muted-foreground truncate text-xs leading-4">
-            <UnlockText hotm={recipe.hotm} />
-          </p>
-        </span>
-        <ChevronDown className="text-muted-foreground size-4 shrink-0 transition-transform group-data-[panel-open]:rotate-180" />
-      </CollapsibleTrigger>
+      <div className="flex items-center gap-1">
+        <CollapsibleTrigger className="group hover:bg-muted/50 -m-1 flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-md p-1 text-left transition-colors">
+          <span className="flex w-7 shrink-0 items-center justify-center">
+            <ItemIcon id={recipe.outputId} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <p className="truncate leading-tight font-semibold">
+              {recipe.name}
+            </p>
+            <p className="text-muted-foreground truncate text-xs leading-4">
+              <UnlockText hotm={recipe.hotm} />
+            </p>
+          </span>
+          <ChevronDown className="text-muted-foreground size-4 shrink-0 transition-transform group-data-[panel-open]:rotate-180" />
+        </CollapsibleTrigger>
+        <WikiLink name={recipe.name} />
+      </div>
       <CollapsibleContent>
         <div className="pt-2">
           <IngredientList recipe={recipe} />
