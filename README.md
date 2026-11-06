@@ -20,7 +20,7 @@ Useful commands:
 ```sh
 pnpm build         # production build
 pnpm start         # serve the production build
-pnpm data:update   # refresh recipe data from the wiki
+pnpm data:update   # build recipe data, downloading missing sources
 pnpm icons:update  # refresh item icons
 pnpm test:unit     # run pricing tests
 pnpm lint          # Prettier check, ESLint, and tsc
