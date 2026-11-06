@@ -690,7 +690,7 @@ const columns = columnHelper.columns([
     ),
     sortFn: sortFn_basic,
     sortDescFirst: true,
-    size: 90,
+    size: 110,
     enableGlobalFilter: false,
     meta: { align: "right", cellClassName: "text-right" },
   }),
@@ -704,7 +704,7 @@ const columns = columnHelper.columns([
     ),
     sortFn: sortFn_basic,
     sortDescFirst: true,
-    size: 110,
+    size: 130,
     enableGlobalFilter: false,
     meta: { align: "right", cellClassName: "text-right" },
   }),
@@ -728,7 +728,7 @@ const columns = columnHelper.columns([
     },
   }),
   columnHelper.accessor("confidence", {
-    header: "Confidence",
+    header: "Conf.",
     cell: ({ getValue }) => (
       <MetricBar value={getValue()} max={100}>
         <span className="tabular-nums">
@@ -739,7 +739,7 @@ const columns = columnHelper.columns([
     ),
     sortFn: sortFn_basic,
     sortDescFirst: true,
-    size: 150,
+    size: 110,
     enableGlobalFilter: false,
     meta: { align: "right", cellClassName: "text-right pr-4 tabular-nums" },
   }),
@@ -752,9 +752,11 @@ function TableControls({ table }: { table: ForgeTable }) {
     .map((column) => ({
       value: column.id,
       label:
-        typeof column.columnDef.header === "string"
-          ? column.columnDef.header
-          : column.id,
+        column.id === "confidence"
+          ? "Confidence"
+          : typeof column.columnDef.header === "string"
+            ? column.columnDef.header
+            : column.id,
     }));
   const sortValue = table.state.sorting[0]?.id ?? "profitPerHour";
 
@@ -876,9 +878,11 @@ function DesktopTable({ table }: { table: ForgeTable }) {
                   : undefined;
                 const meta = header.column.columnDef.meta;
                 const headerName =
-                  typeof header.column.columnDef.header === "string"
-                    ? header.column.columnDef.header
-                    : "column";
+                  header.column.id === "confidence"
+                    ? "Confidence"
+                    : typeof header.column.columnDef.header === "string"
+                      ? header.column.columnDef.header
+                      : "column";
 
                 return (
                   <TableHead
@@ -1007,7 +1011,9 @@ function MobileCards({ table }: { table: ForgeTable }) {
                   <span className="flex w-7 shrink-0 items-center justify-center">
                     <ItemIcon id={recipe.outputId} />
                   </span>
-                  <p className="min-w-0 text-sm font-semibold">{recipe.name}</p>
+                  <p className="min-w-0 text-sm font-semibold break-words">
+                    {recipe.name}
+                  </p>
                 </CollapsibleTrigger>
                 <WikiLink name={recipe.name} />
                 <CollapsibleTrigger
