@@ -421,7 +421,7 @@ function RecipeDetails({ recipe }: { recipe: PricedRecipe }) {
             <ItemIcon id={recipe.outputId} />
           </span>
           <span className="min-w-0 flex-1">
-            <p className="truncate leading-tight font-semibold">
+            <p className="leading-tight font-semibold break-words">
               {recipe.name}
             </p>
             <p className="text-muted-foreground truncate text-xs leading-4">
