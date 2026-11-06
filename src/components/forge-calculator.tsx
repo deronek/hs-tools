@@ -636,7 +636,7 @@ const columns = columnHelper.columns([
       header: "Recipe",
       cell: ({ row }) => <RecipeDetails recipe={row.original} />,
       sortFn: sortFn_text,
-      size: 350,
+      size: 320,
       minSize: 220,
       maxSize: 480,
       enableHiding: false,
@@ -728,7 +728,7 @@ const columns = columnHelper.columns([
     },
   }),
   columnHelper.accessor("confidence", {
-    header: "Conf.",
+    header: "Confidence",
     cell: ({ getValue }) => (
       <MetricBar value={getValue()} max={100}>
         <span className="tabular-nums">
@@ -739,7 +739,7 @@ const columns = columnHelper.columns([
     ),
     sortFn: sortFn_basic,
     sortDescFirst: true,
-    size: 110,
+    size: 140,
     enableGlobalFilter: false,
     meta: { align: "right", cellClassName: "text-right pr-4 tabular-nums" },
   }),
@@ -752,11 +752,9 @@ function TableControls({ table }: { table: ForgeTable }) {
     .map((column) => ({
       value: column.id,
       label:
-        column.id === "confidence"
-          ? "Confidence"
-          : typeof column.columnDef.header === "string"
-            ? column.columnDef.header
-            : column.id,
+        typeof column.columnDef.header === "string"
+          ? column.columnDef.header
+          : column.id,
     }));
   const sortValue = table.state.sorting[0]?.id ?? "profitPerHour";
 
@@ -878,11 +876,9 @@ function DesktopTable({ table }: { table: ForgeTable }) {
                   : undefined;
                 const meta = header.column.columnDef.meta;
                 const headerName =
-                  header.column.id === "confidence"
-                    ? "Confidence"
-                    : typeof header.column.columnDef.header === "string"
-                      ? header.column.columnDef.header
-                      : "column";
+                  typeof header.column.columnDef.header === "string"
+                    ? header.column.columnDef.header
+                    : "column";
 
                 return (
                   <TableHead
@@ -896,7 +892,7 @@ function DesktopTable({ table }: { table: ForgeTable }) {
                           : "none"
                     }
                     className={cn(
-                      "relative px-3 font-normal",
+                      "relative px-2 font-normal",
                       canSort && "hover:bg-muted/60",
                       sorted && "text-primary",
                     )}
