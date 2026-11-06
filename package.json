@@ -1,5 +1,6 @@
 {
   "name": "hs-tools",
+  "description": "A collection of Hypixel SkyBlock tools and calculators.",
   "version": "0.1.0",
   "private": true,
   "scripts": {
