@@ -373,7 +373,7 @@ function IngredientList({ recipe }: { recipe: PricedRecipe }) {
       {recipe.ingredients.map((ingredient) => (
         <div
           key={ingredient.name}
-          className="flex items-center justify-between gap-3 text-sm"
+          className="grid grid-cols-[minmax(0,1fr)_24px_4rem] items-center gap-1 text-sm"
         >
           <span className="flex min-w-0 items-center gap-2">
             <span className="flex w-7 shrink-0 items-center justify-center">
@@ -385,12 +385,10 @@ function IngredientList({ recipe }: { recipe: PricedRecipe }) {
               </span>
               <span className="text-muted-foreground ml-0.5">×</span>
             </span>
-            <span className="flex min-w-0 items-center gap-1">
-              <span className="truncate">{ingredient.name}</span>
-              <WikiLink name={ingredient.name} />
-            </span>
+            <span className="truncate">{ingredient.name}</span>
           </span>
-          <span className="tabular-nums">
+          <WikiLink name={ingredient.name} />
+          <span className="text-right tabular-nums">
             <Coins value={ingredient.cost} />
           </span>
         </div>
@@ -417,8 +415,8 @@ function UnlockText({ hotm }: { hotm: string }) {
 function RecipeDetails({ recipe }: { recipe: PricedRecipe }) {
   return (
     <Collapsible>
-      <div className="flex items-center gap-1">
-        <CollapsibleTrigger className="group hover:bg-muted/50 -m-1 flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-md p-1 text-left transition-colors">
+      <div className="grid grid-cols-[minmax(0,1fr)_24px_4rem] items-center gap-1">
+        <CollapsibleTrigger className="group hover:bg-muted/50 -m-1 flex min-w-0 cursor-pointer items-center gap-2 rounded-md p-1 text-left transition-colors">
           <span className="flex w-7 shrink-0 items-center justify-center">
             <ItemIcon id={recipe.outputId} />
           </span>
@@ -430,9 +428,14 @@ function RecipeDetails({ recipe }: { recipe: PricedRecipe }) {
               <UnlockText hotm={recipe.hotm} />
             </p>
           </span>
-          <ChevronDown className="text-muted-foreground size-4 shrink-0 transition-transform group-data-[panel-open]:rotate-180" />
         </CollapsibleTrigger>
         <WikiLink name={recipe.name} />
+        <CollapsibleTrigger
+          aria-label={`Toggle ${recipe.name} ingredients`}
+          className="group hover:bg-muted/50 flex size-7 cursor-pointer items-center justify-center justify-self-end rounded-md transition-colors"
+        >
+          <ChevronDown className="text-muted-foreground size-4 shrink-0 transition-transform group-data-[panel-open]:rotate-180" />
+        </CollapsibleTrigger>
       </div>
       <CollapsibleContent>
         <div className="pt-2">
