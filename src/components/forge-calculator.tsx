@@ -385,7 +385,7 @@ function IngredientList({ recipe }: { recipe: PricedRecipe }) {
               </span>
               <span className="text-muted-foreground ml-0.5">×</span>
             </span>
-            <span className="truncate">{ingredient.name}</span>
+            <span className="min-w-0 break-words">{ingredient.name}</span>
           </span>
           <WikiLink name={ingredient.name} />
           <span className="text-right tabular-nums">
@@ -424,7 +424,7 @@ function RecipeDetails({ recipe }: { recipe: PricedRecipe }) {
             <p className="leading-tight font-semibold break-words">
               {recipe.name}
             </p>
-            <p className="text-muted-foreground truncate text-xs leading-4">
+            <p className="text-muted-foreground text-xs leading-4 break-words">
               <UnlockText hotm={recipe.hotm} />
             </p>
           </span>
@@ -1032,8 +1032,8 @@ function MobileCards({ table }: { table: ForgeTable }) {
                       /hr
                     </span>
                   </div>
-                  <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
-                    <span className="truncate">
+                  <div className="text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm">
+                    <span className="min-w-0 break-words">
                       {recipe.section.replaceAll("_", " ")},{" "}
                       <UnlockText hotm={recipe.hotm} />
                       {", "}
