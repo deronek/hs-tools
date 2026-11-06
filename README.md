@@ -18,11 +18,13 @@ Open `http://localhost:3000/forge`. The root URL redirects there.
 Useful commands:
 
 ```sh
-pnpm build      # production build
-pnpm start      # serve the production build
-pnpm test:unit  # run pricing tests
-pnpm lint       # Prettier check, ESLint, and tsc
-pnpm format     # write Prettier changes
+pnpm build         # production build
+pnpm start         # serve the production build
+pnpm data:update   # refresh recipe data from the wiki
+pnpm icons:update  # refresh item icons
+pnpm test:unit     # run pricing tests
+pnpm lint          # Prettier check, ESLint, and tsc
+pnpm format        # write Prettier changes
 ```
 
 ## Tech stack
