@@ -454,7 +454,7 @@ function ConfidenceInfoPopover() {
           <Button
             type="button"
             variant="ghost"
-            size="icon-sm"
+            size="icon-xs"
             aria-label="About the confidence score"
             className="text-muted-foreground"
           >
@@ -898,7 +898,7 @@ function DesktopTable({ table }: { table: ForgeTable }) {
                     )}
                   >
                     {header.isPlaceholder ? null : (
-                      <div className="flex w-full min-w-0 items-center gap-1">
+                      <div className="flex w-full min-w-0 items-center">
                         <div
                           role={canSort ? "button" : undefined}
                           tabIndex={canSort ? 0 : undefined}
