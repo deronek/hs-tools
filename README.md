@@ -1,10 +1,8 @@
 # HS Tools
 
-HS Tools is a collection of utilities for Hypixel SkyBlock players, built to help with practical in-game decisions and market analysis.
+HS Tools is a collection of tools for Hypixel SkyBlock players.
 
-The project currently includes the Forge Profit Calculator, which compares forge recipe profits using live bazaar pricing. It covers 30 of 119 recipes today. See [recipe coverage](docs/recipes.md) and [design notes](docs/design.md).
-
-More tools can be added over time, but the repository itself is intended to be a general home for Hypixel SkyBlock helpers rather than a single-purpose forge page.
+The current tool is the Forge Profit Calculator, which compares forge recipe profits using live bazaar pricing. It covers 30 of 119 recipes today. See [recipe coverage](docs/recipes.md) and [design notes](docs/design.md).
 
 ## Development
 
@@ -15,7 +13,7 @@ pnpm install
 pnpm dev
 ```
 
-Open `http://localhost:3000/` to browse the project landing page, or go directly to `http://localhost:3000/forge` for the calculator.
+Open `http://localhost:3000/forge`. The root URL redirects there.
 
 Useful commands:
 
