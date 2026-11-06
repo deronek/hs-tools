@@ -636,7 +636,7 @@ const columns = columnHelper.columns([
       header: "Recipe",
       cell: ({ row }) => <RecipeDetails recipe={row.original} />,
       sortFn: sortFn_text,
-      size: 280,
+      size: 370,
       minSize: 220,
       maxSize: 480,
       enableHiding: false,
@@ -654,7 +654,7 @@ const columns = columnHelper.columns([
       </MetricBar>
     ),
     sortFn: sortFn_basic,
-    size: 100,
+    size: 80,
     enableGlobalFilter: false,
     meta: {
       align: "right",
@@ -673,7 +673,7 @@ const columns = columnHelper.columns([
     ),
     sortFn: sortFn_basic,
     sortDescFirst: true,
-    size: 110,
+    size: 100,
     enableGlobalFilter: false,
     meta: {
       align: "right",
@@ -690,7 +690,7 @@ const columns = columnHelper.columns([
     ),
     sortFn: sortFn_basic,
     sortDescFirst: true,
-    size: 110,
+    size: 80,
     enableGlobalFilter: false,
     meta: { align: "right", cellClassName: "text-right" },
   }),
@@ -704,7 +704,7 @@ const columns = columnHelper.columns([
     ),
     sortFn: sortFn_basic,
     sortDescFirst: true,
-    size: 120,
+    size: 100,
     enableGlobalFilter: false,
     meta: { align: "right", cellClassName: "text-right" },
   }),
@@ -720,7 +720,7 @@ const columns = columnHelper.columns([
       </MetricBar>
     ),
     sortFn: sortFn_basic,
-    size: 100,
+    size: 80,
     enableGlobalFilter: false,
     meta: {
       align: "right",
@@ -739,7 +739,7 @@ const columns = columnHelper.columns([
     ),
     sortFn: sortFn_basic,
     sortDescFirst: true,
-    size: 140,
+    size: 150,
     enableGlobalFilter: false,
     meta: { align: "right", cellClassName: "text-right pr-4 tabular-nums" },
   }),
@@ -1007,9 +1007,7 @@ function MobileCards({ table }: { table: ForgeTable }) {
                   <span className="flex w-7 shrink-0 items-center justify-center">
                     <ItemIcon id={recipe.outputId} />
                   </span>
-                  <p className="truncate text-sm font-semibold">
-                    {recipe.name}
-                  </p>
+                  <p className="min-w-0 text-sm font-semibold">{recipe.name}</p>
                 </CollapsibleTrigger>
                 <WikiLink name={recipe.name} />
                 <CollapsibleTrigger
