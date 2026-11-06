@@ -32,6 +32,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronsUpDown,
+  ExternalLink,
   Info,
   RotateCcw,
   Search,
@@ -76,6 +77,7 @@ import {
 import itemIconFiles from "@/data/item-icons.json";
 import { DEFAULT_SETTINGS, priceRecipe } from "@/lib/forge";
 import { cn, formatDuration, formatPercent, parseUnlock } from "@/lib/utils";
+import { getWikiItemUrl } from "@/lib/wiki";
 
 const itemIcons: Record<string, string> = itemIconFiles;
 
@@ -350,13 +352,28 @@ function ItemIcon({
   );
 }
 
+function WikiLink({ name }: { name: string }) {
+  return (
+    <a
+      href={getWikiItemUrl(name)}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Open ${name} on the Hypixel SkyBlock Wiki`}
+      title={`Open ${name} on the Hypixel SkyBlock Wiki`}
+      className="text-muted-foreground hover:text-primary focus-visible:ring-ring inline-flex size-11 shrink-0 items-center justify-center rounded-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
+    >
+      <ExternalLink aria-hidden="true" className="size-4" />
+    </a>
+  );
+}
+
 function IngredientList({ recipe }: { recipe: PricedRecipe }) {
   return (
     <div className="space-y-1.5">
       {recipe.ingredients.map((ingredient) => (
         <div
           key={ingredient.name}
-          className="flex items-center justify-between gap-3 text-sm"
+          className="grid min-h-11 grid-cols-[minmax(0,1fr)_44px_4rem] items-center gap-1 text-sm"
         >
           <span className="flex min-w-0 items-center gap-2">
             <span className="flex w-7 shrink-0 items-center justify-center">
@@ -370,7 +387,8 @@ function IngredientList({ recipe }: { recipe: PricedRecipe }) {
             </span>
             <span className="truncate">{ingredient.name}</span>
           </span>
-          <span className="tabular-nums">
+          <WikiLink name={ingredient.name} />
+          <span className="text-right tabular-nums">
             <Coins value={ingredient.cost} />
           </span>
         </div>
@@ -397,18 +415,28 @@ function UnlockText({ hotm }: { hotm: string }) {
 function RecipeDetails({ recipe }: { recipe: PricedRecipe }) {
   return (
     <Collapsible>
-      <CollapsibleTrigger className="group hover:bg-muted/50 -m-1 flex w-full cursor-pointer items-center gap-2 rounded-md p-1 text-left transition-colors">
-        <span className="flex w-7 shrink-0 items-center justify-center">
-          <ItemIcon id={recipe.outputId} />
-        </span>
-        <span className="min-w-0 flex-1">
-          <p className="truncate leading-tight font-semibold">{recipe.name}</p>
-          <p className="text-muted-foreground truncate text-xs leading-4">
-            <UnlockText hotm={recipe.hotm} />
-          </p>
-        </span>
-        <ChevronDown className="text-muted-foreground size-4 shrink-0 transition-transform group-data-[panel-open]:rotate-180" />
-      </CollapsibleTrigger>
+      <div className="grid min-h-11 grid-cols-[minmax(0,1fr)_44px_4rem] items-center gap-1">
+        <CollapsibleTrigger className="group hover:bg-muted/50 -m-1 flex min-h-11 min-w-0 cursor-pointer items-center gap-2 rounded-md p-1 text-left transition-colors">
+          <span className="flex w-7 shrink-0 items-center justify-center">
+            <ItemIcon id={recipe.outputId} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <p className="truncate leading-tight font-semibold">
+              {recipe.name}
+            </p>
+            <p className="text-muted-foreground truncate text-xs leading-4">
+              <UnlockText hotm={recipe.hotm} />
+            </p>
+          </span>
+        </CollapsibleTrigger>
+        <WikiLink name={recipe.name} />
+        <CollapsibleTrigger
+          aria-label={`Toggle ${recipe.name} ingredients`}
+          className="group hover:bg-muted/50 flex size-11 cursor-pointer items-center justify-center justify-self-end rounded-md transition-colors"
+        >
+          <ChevronDown className="text-muted-foreground size-4 shrink-0 transition-transform group-data-[panel-open]:rotate-180" />
+        </CollapsibleTrigger>
+      </div>
       <CollapsibleContent>
         <div className="pt-2">
           <IngredientList recipe={recipe} />
@@ -974,13 +1002,23 @@ function MobileCards({ table }: { table: ForgeTable }) {
             className="rounded-md border p-3"
           >
             <Collapsible>
-              <CollapsibleTrigger className="group hover:bg-muted/50 -m-1 flex w-full cursor-pointer items-center gap-2 rounded-md p-1 text-left transition-colors">
-                <span className="flex w-7 shrink-0 items-center justify-center">
-                  <ItemIcon id={recipe.outputId} />
-                </span>
-                <p className="truncate text-sm font-semibold">{recipe.name}</p>
-                <ChevronDown className="text-muted-foreground ml-auto size-4 shrink-0 transition-transform group-aria-expanded:rotate-180" />
-              </CollapsibleTrigger>
+              <div className="grid min-h-11 grid-cols-[minmax(0,1fr)_44px_4rem] items-center gap-1">
+                <CollapsibleTrigger className="group hover:bg-muted/50 -m-1 flex min-h-11 min-w-0 cursor-pointer items-center gap-2 rounded-md p-1 text-left transition-colors">
+                  <span className="flex w-7 shrink-0 items-center justify-center">
+                    <ItemIcon id={recipe.outputId} />
+                  </span>
+                  <p className="truncate text-sm font-semibold">
+                    {recipe.name}
+                  </p>
+                </CollapsibleTrigger>
+                <WikiLink name={recipe.name} />
+                <CollapsibleTrigger
+                  aria-label={`Toggle ${recipe.name} details`}
+                  className="group hover:bg-muted/50 flex size-11 cursor-pointer items-center justify-center justify-self-end rounded-md transition-colors"
+                >
+                  <ChevronDown className="text-muted-foreground size-4 shrink-0 transition-transform group-aria-expanded:rotate-180" />
+                </CollapsibleTrigger>
+              </div>
               <CollapsibleContent>
                 <div className="mt-2.5 space-y-2">
                   <div className="flex items-center justify-between gap-3 text-sm">
