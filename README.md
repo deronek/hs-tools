@@ -2,7 +2,9 @@
 
 HS Tools is a collection of tools for Hypixel SkyBlock players.
 
-The current tool is the Forge Profit Calculator, which compares forge recipe profits using live bazaar pricing. It covers 30 of 119 recipes today. See [recipe coverage](docs/recipes.md) and [design notes](docs/design.md).
+The current tool is the Forge Profit Calculator, which compares forge recipe profits using live Bazaar and Auction House pricing. It covers 92 of 119 recipes today. See [recipe coverage](docs/recipes.md) and [design notes](docs/design.md).
+
+Auction House prices come from the [Coflnet API](https://sky.coflnet.com/data) ("SkyCofl").
 
 ## Development
 

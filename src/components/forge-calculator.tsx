@@ -1,5 +1,6 @@
 "use client";
 
+import type { AhSnapshot } from "@/lib/ah";
 import type {
   BazaarProducts,
   PricedRecipe,
@@ -85,6 +86,7 @@ type Props = {
   recipes: Recipe[];
   products: BazaarProducts;
   lastUpdated: number;
+  ah: AhSnapshot;
 };
 
 type ForgeColumnMeta = {
@@ -367,6 +369,21 @@ function WikiLink({ name }: { name: string }) {
   );
 }
 
+function AhBadge({ tag, name }: { tag: string; name: string }) {
+  return (
+    <a
+      href={`https://sky.coflnet.com/item/${tag}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Auction House prices for ${name} on SkyCofl`}
+      title={`Auction House prices for ${name} on SkyCofl`}
+      className="text-muted-foreground hover:text-primary focus-visible:ring-ring inline-flex shrink-0 items-center rounded-sm border px-1 py-0.5 text-[10px] leading-none font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none"
+    >
+      AH
+    </a>
+  );
+}
+
 function IngredientList({ recipe }: { recipe: PricedRecipe }) {
   return (
     <div className="space-y-1.5">
@@ -386,6 +403,9 @@ function IngredientList({ recipe }: { recipe: PricedRecipe }) {
               <span className="text-muted-foreground ml-0.5">×</span>
             </span>
             <span className="min-w-0 break-words">{ingredient.name}</span>
+            {ingredient.market === "auction" && ingredient.tag && (
+              <AhBadge tag={ingredient.tag} name={ingredient.name} />
+            )}
           </span>
           <WikiLink name={ingredient.name} />
           <span className="text-right tabular-nums">
@@ -421,8 +441,11 @@ function RecipeDetails({ recipe }: { recipe: PricedRecipe }) {
             <ItemIcon id={recipe.outputId} />
           </span>
           <span className="min-w-0 flex-1">
-            <p className="leading-tight font-semibold break-words">
-              {recipe.name}
+            <p className="flex items-center gap-1.5 leading-tight font-semibold break-words">
+              <span className="min-w-0 break-words">{recipe.name}</span>
+              {recipe.outputMarket === "auction" && recipe.outputTag && (
+                <AhBadge tag={recipe.outputTag} name={recipe.name} />
+              )}
             </p>
             <p className="text-muted-foreground text-xs leading-4 break-words">
               <UnlockText hotm={recipe.hotm} />
@@ -467,6 +490,11 @@ function ConfidenceInfoPopover() {
           A snapshot score from order depth (40%), daily volume (35%), and
           bid/ask spread (25%). Order or offer fills multiply it by 0.85. It is
           not a guarantee of fill.
+        </p>
+        <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+          Auction House legs use price stability, 24h sold volume, and feed
+          freshness on the same scale. AH prices are market sale estimates from
+          Coflnet, not order book quotes.
         </p>
       </PopoverContent>
     </Popover>
@@ -1007,8 +1035,11 @@ function MobileCards({ table }: { table: ForgeTable }) {
                   <span className="flex w-7 shrink-0 items-center justify-center">
                     <ItemIcon id={recipe.outputId} />
                   </span>
-                  <p className="min-w-0 text-sm font-semibold break-words">
-                    {recipe.name}
+                  <p className="flex min-w-0 items-center gap-1.5 text-sm font-semibold break-words">
+                    <span className="min-w-0 break-words">{recipe.name}</span>
+                    {recipe.outputMarket === "auction" && recipe.outputTag && (
+                      <AhBadge tag={recipe.outputTag} name={recipe.name} />
+                    )}
                   </p>
                 </CollapsibleTrigger>
                 <WikiLink name={recipe.name} />
@@ -1058,15 +1089,15 @@ function MobileCards({ table }: { table: ForgeTable }) {
   );
 }
 
-export function ForgeCalculator({ recipes, products, lastUpdated }: Props) {
+export function ForgeCalculator({ recipes, products, lastUpdated, ah }: Props) {
   const [settings, setSettings] = useState<PricingSettings>(DEFAULT_SETTINGS);
 
   const priced = useMemo(
     () =>
       recipes
-        .map((recipe) => priceRecipe(recipe, products, settings))
+        .map((recipe) => priceRecipe(recipe, products, settings, ah.items))
         .filter((recipe): recipe is PricedRecipe => recipe !== null),
-    [recipes, products, settings],
+    [recipes, products, settings, ah.items],
   );
 
   const eligible = useMemo(
@@ -1099,12 +1130,14 @@ export function ForgeCalculator({ recipes, products, lastUpdated }: Props) {
         </h1>
         <p className="text-lg">
           Find the most profitable Hypixel SkyBlock forge recipes from live
-          bazaar prices.
+          bazaar and auction house prices.
         </p>
       </header>
 
       <p className="text-muted-foreground text-sm">
-        Prices updated <RelativeTime timestamp={lastUpdated} />
+        Bazaar prices updated <RelativeTime timestamp={lastUpdated} />
+        <span className="select-none"> · </span>
+        Auction House prices updated <RelativeTime timestamp={ah.fetchedAt} />
       </p>
 
       <section className="py-1">

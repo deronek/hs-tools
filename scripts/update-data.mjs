@@ -32,7 +32,31 @@ const sources = [
       return products && typeof products === "object";
     },
   },
+  {
+    path: "data/raw/coflnet-items.json",
+    url: "https://sky.coflnet.com/api/items",
+    validate: (content) => {
+      const items = JSON.parse(content);
+      return (
+        Array.isArray(items) &&
+        items.every((item) => typeof item.tag === "string")
+      );
+    },
+  },
 ];
+
+// The change payload covers every tag in the reviewed AH mapping, so the
+// classification report can check live markets, not just catalog flags.
+const ahNames = JSON.parse(fs.readFileSync("src/data/ah-names.json", "utf8"));
+const ahTags = [...new Set(Object.values(ahNames))].sort();
+sources.push({
+  path: "data/raw/coflnet-change.json",
+  url: `https://sky.coflnet.com/api/prices/change?itemTags=${ahTags.join(",")}`,
+  validate: (content) => {
+    const change = JSON.parse(content);
+    return change && typeof change === "object" && !Array.isArray(change);
+  },
+});
 
 fs.mkdirSync("data/raw", { recursive: true });
 

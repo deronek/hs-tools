@@ -39,9 +39,9 @@ export type BazaarSnapshot = {
 
 const neededIds = new Set(
   (recipes as Recipe[]).flatMap((recipe) => [
-    recipe.outputId,
+    ...(recipe.outputMarket === "bazaar" ? [recipe.outputId] : []),
     ...recipe.ingredients.flatMap((ingredient) =>
-      ingredient.id ? [ingredient.id] : [],
+      ingredient.market === "bazaar" && ingredient.id ? [ingredient.id] : [],
     ),
   ]),
 );

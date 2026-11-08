@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import type { BazaarProducts, Recipe } from "./forge";
-import { DEFAULT_SETTINGS, priceRecipe } from "./forge";
+import type { AhPrices, BazaarProducts, Recipe } from "./forge";
+import recipesData from "../data/recipes.json";
+import golden from "./fixtures/legacy-golden.json";
+import { AH_COLLECTION_TAX_MIN, DEFAULT_SETTINGS, priceRecipe } from "./forge";
 
 function product(sell: number, buy: number) {
   return {
@@ -33,7 +35,8 @@ const recipe: Recipe = {
   outputQty: 1,
   durationSeconds: 3_600,
   hotm: "I",
-  ingredients: [{ name: "A", qty: 2, id: "A" }],
+  outputMarket: "bazaar",
+  ingredients: [{ name: "A", qty: 2, id: "A", market: "bazaar" }],
 };
 
 describe("priceRecipe", () => {
@@ -59,5 +62,167 @@ describe("priceRecipe", () => {
 
     expect(priced?.cost).toBeCloseTo(90.1 * 2);
     expect(priced?.revenue).toBeCloseTo(199.9);
+  });
+});
+
+describe("auction house legs", () => {
+  const ahRecipe: Recipe = {
+    section: "Test",
+    name: "AH recipe",
+    outputId: "OUT",
+    outputQty: 1,
+    durationSeconds: 3_600,
+    hotm: "I",
+    outputMarket: "auction",
+    outputTag: "OUT_TAG",
+    ingredients: [
+      {
+        name: "AH part",
+        qty: 2,
+        id: "AH_PART",
+        market: "auction",
+        tag: "PART_TAG",
+      },
+    ],
+  };
+
+  const ahPrices: AhPrices = {
+    PART_TAG: {
+      price: 100,
+      avg: 102,
+      monthly: 105,
+      volumePerDay: 50,
+      feedAgeMinutes: 30,
+      source: "now",
+    },
+    OUT_TAG: {
+      price: 2_000_000,
+      avg: 1_950_000,
+      monthly: 1_800_000,
+      volumePerDay: 8.5,
+      feedAgeMinutes: 45,
+      source: "now",
+    },
+  };
+
+  it("prices AH ingredients as buy-now without order modes", () => {
+    const priced = priceRecipe(
+      ahRecipe,
+      products,
+      { ...DEFAULT_SETTINGS, inputMode: "order" },
+      ahPrices,
+    );
+
+    expect(priced?.ingredients[0]).toMatchObject({
+      cost: 200,
+      unit: 100,
+      market: "auction",
+      tag: "PART_TAG",
+    });
+    expect(priced?.cost).toBe(200);
+  });
+
+  it("applies the creation fee and the 1M collection tax to AH revenue", () => {
+    const priced = priceRecipe(ahRecipe, products, DEFAULT_SETTINGS, ahPrices);
+
+    const payout = 2_000_000;
+    expect(payout).toBeGreaterThanOrEqual(AH_COLLECTION_TAX_MIN);
+    expect(priced?.revenue).toBeCloseTo(payout * 0.97);
+  });
+
+  it("skips the collection tax when the payout is under 1M", () => {
+    const cheap: AhPrices = {
+      ...ahPrices,
+      OUT_TAG: { ...ahPrices.OUT_TAG, price: 500_000 },
+    };
+    const priced = priceRecipe(ahRecipe, products, DEFAULT_SETTINGS, cheap);
+
+    expect(priced?.revenue).toBeCloseTo(500_000 * 0.98);
+  });
+
+  it("keeps AH revenue independent of the output mode toggle", () => {
+    const instant = priceRecipe(ahRecipe, products, DEFAULT_SETTINGS, ahPrices);
+    const offer = priceRecipe(
+      ahRecipe,
+      products,
+      { ...DEFAULT_SETTINGS, outputMode: "offer" },
+      ahPrices,
+    );
+
+    expect(offer?.revenue).toBe(instant?.revenue);
+  });
+
+  it("renders zero revenue and confidence for an unlisted AH output", () => {
+    const priced = priceRecipe(ahRecipe, products, DEFAULT_SETTINGS, {
+      PART_TAG: ahPrices.PART_TAG,
+    });
+
+    expect(priced).not.toBeNull();
+    expect(priced?.revenue).toBe(0);
+    expect(priced?.confidence).toBe(0);
+    expect(priced?.profit).toBe(-200);
+  });
+
+  it("drops recipes with unpriced AH ingredients instead of pricing them as free", () => {
+    const priced = priceRecipe(ahRecipe, products, DEFAULT_SETTINGS, {
+      OUT_TAG: ahPrices.OUT_TAG,
+    });
+
+    expect(priced).toBeNull();
+  });
+
+  it("prices mixed-market recipes with bazaar inputs and an AH output", () => {
+    const mixed: Recipe = {
+      section: "Test",
+      name: "Mixed recipe",
+      outputId: "OUT",
+      outputQty: 1,
+      durationSeconds: 3_600,
+      hotm: "I",
+      outputMarket: "auction",
+      outputTag: "OUT_TAG",
+      ingredients: [{ name: "A", qty: 2, id: "A", market: "bazaar" }],
+    };
+    const priced = priceRecipe(mixed, products, DEFAULT_SETTINGS, ahPrices);
+
+    expect(priced?.cost).toBe(200); // bazaar instant buy
+    expect(priced?.revenue).toBeCloseTo(2_000_000 * 0.97);
+    expect(priced?.confidence).toBeGreaterThan(0);
+    expect(priced?.confidence).toBeLessThanOrEqual(100);
+  });
+
+  it("reproduces the pre-batch bazaar pricing for the legacy 30 recipes", () => {
+    const fixtureProducts = golden.products as BazaarProducts;
+    const byGoldenName = new Map(golden.golden.instant.map((r) => [r.name, r]));
+    const byGoldenNameOrder = new Map(
+      golden.golden.orderOffer.map((r) => [r.name, r]),
+    );
+
+    const legacy = (recipesData as unknown as Recipe[]).filter((r) =>
+      byGoldenName.has(r.name),
+    );
+    expect(legacy).toHaveLength(30);
+    expect(legacy.every((r) => r.outputMarket === "bazaar")).toBe(true);
+
+    for (const recipe of legacy) {
+      for (const [settings, expectedByName] of [
+        [DEFAULT_SETTINGS, byGoldenName],
+        [
+          {
+            ...DEFAULT_SETTINGS,
+            inputMode: "order",
+            outputMode: "offer",
+            taxRate: 1,
+          },
+          byGoldenNameOrder,
+        ],
+      ] as const) {
+        const priced = priceRecipe(recipe, fixtureProducts, settings, {});
+        const expected = expectedByName.get(recipe.name)!;
+        expect(priced?.cost).toBe(expected.cost);
+        expect(priced?.revenue).toBeCloseTo(expected.revenue, 10);
+        expect(priced?.confidence).toBeCloseTo(expected.confidence, 10);
+      }
+    }
   });
 });

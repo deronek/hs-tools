@@ -6,11 +6,13 @@
     "outputQty": 1,
     "durationSeconds": 28800,
     "hotm": "II",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Enchanted Diamond Block",
         "qty": 2,
-        "id": "ENCHANTED_DIAMOND_BLOCK"
+        "id": "ENCHANTED_DIAMOND_BLOCK",
+        "market": "bazaar"
       }
     ]
   },
@@ -21,11 +23,13 @@
     "outputQty": 1,
     "durationSeconds": 21600,
     "hotm": "II",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Enchanted Mithril",
         "qty": 160,
-        "id": "ENCHANTED_MITHRIL"
+        "id": "ENCHANTED_MITHRIL",
+        "market": "bazaar"
       }
     ]
   },
@@ -36,11 +40,13 @@
     "outputQty": 1,
     "durationSeconds": 43200,
     "hotm": "II",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Enchanted Titanium",
         "qty": 16,
-        "id": "ENCHANTED_TITANIUM"
+        "id": "ENCHANTED_TITANIUM",
+        "market": "bazaar"
       }
     ]
   },
@@ -51,11 +57,13 @@
     "outputQty": 1,
     "durationSeconds": 3600,
     "hotm": "VII Tungsten III (3)",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Enchanted Tungsten",
         "qty": 160,
-        "id": "ENCHANTED_TUNGSTEN"
+        "id": "ENCHANTED_TUNGSTEN",
+        "market": "bazaar"
       }
     ]
   },
@@ -66,11 +74,13 @@
     "outputQty": 1,
     "durationSeconds": 3600,
     "hotm": "VII Umber III (3)",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Enchanted Umber",
         "qty": 160,
-        "id": "ENCHANTED_UMBER"
+        "id": "ENCHANTED_UMBER",
+        "market": "bazaar"
       }
     ]
   },
@@ -81,11 +91,13 @@
     "outputQty": 1,
     "durationSeconds": 30,
     "hotm": "II",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Glacite Jewel",
         "qty": 3,
-        "id": "GLACITE_JEWEL"
+        "id": "GLACITE_JEWEL",
+        "market": "bazaar"
       }
     ]
   },
@@ -96,26 +108,31 @@
     "outputQty": 1,
     "durationSeconds": 108000,
     "hotm": "II",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Treasurite",
         "qty": 10,
-        "id": "TREASURITE"
+        "id": "TREASURITE",
+        "market": "bazaar"
       },
       {
         "name": "Enchanted Iron Block",
         "qty": 1,
-        "id": "ENCHANTED_IRON_BLOCK"
+        "id": "ENCHANTED_IRON_BLOCK",
+        "market": "bazaar"
       },
       {
         "name": "Enchanted Redstone Block",
         "qty": 3,
-        "id": "ENCHANTED_REDSTONE_BLOCK"
+        "id": "ENCHANTED_REDSTONE_BLOCK",
+        "market": "bazaar"
       },
       {
         "name": "Golden Plate",
         "qty": 1,
-        "id": "GOLDEN_PLATE"
+        "id": "GOLDEN_PLATE",
+        "market": "bazaar"
       }
     ]
   },
@@ -126,11 +143,13 @@
     "outputQty": 1,
     "durationSeconds": 36000,
     "hotm": "II",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Enchanted Coal Block",
         "qty": 2,
-        "id": "ENCHANTED_COAL_BLOCK"
+        "id": "ENCHANTED_COAL_BLOCK",
+        "market": "bazaar"
       }
     ]
   },
@@ -141,31 +160,37 @@
     "outputQty": 1,
     "durationSeconds": 14400,
     "hotm": "IV",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Fine Jade Gemstone",
         "qty": 4,
-        "id": "FINE_JADE_GEM"
+        "id": "FINE_JADE_GEM",
+        "market": "bazaar"
       },
       {
         "name": "Fine Amber Gemstone",
         "qty": 4,
-        "id": "FINE_AMBER_GEM"
+        "id": "FINE_AMBER_GEM",
+        "market": "bazaar"
       },
       {
         "name": "Fine Amethyst Gemstone",
         "qty": 4,
-        "id": "FINE_AMETHYST_GEM"
+        "id": "FINE_AMETHYST_GEM",
+        "market": "bazaar"
       },
       {
         "name": "Fine Sapphire Gemstone",
         "qty": 4,
-        "id": "FINE_SAPPHIRE_GEM"
+        "id": "FINE_SAPPHIRE_GEM",
+        "market": "bazaar"
       },
       {
         "name": "Sludge Juice",
         "qty": 320,
-        "id": "SLUDGE_JUICE"
+        "id": "SLUDGE_JUICE",
+        "market": "bazaar"
       }
     ]
   },
@@ -176,31 +201,37 @@
     "outputQty": 1,
     "durationSeconds": 14400,
     "hotm": "VII Glacite III (3)",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Fine Onyx Gemstone",
         "qty": 4,
-        "id": "FINE_ONYX_GEM"
+        "id": "FINE_ONYX_GEM",
+        "market": "bazaar"
       },
       {
         "name": "Fine Aquamarine Gemstone",
         "qty": 4,
-        "id": "FINE_AQUAMARINE_GEM"
+        "id": "FINE_AQUAMARINE_GEM",
+        "market": "bazaar"
       },
       {
         "name": "Fine Citrine Gemstone",
         "qty": 4,
-        "id": "FINE_CITRINE_GEM"
+        "id": "FINE_CITRINE_GEM",
+        "market": "bazaar"
       },
       {
         "name": "Fine Peridot Gemstone",
         "qty": 4,
-        "id": "FINE_PERIDOT_GEM"
+        "id": "FINE_PERIDOT_GEM",
+        "market": "bazaar"
       },
       {
         "name": "Enchanted Glacite",
         "qty": 256,
-        "id": "ENCHANTED_GLACITE"
+        "id": "ENCHANTED_GLACITE",
+        "market": "bazaar"
       }
     ]
   },
@@ -211,21 +242,25 @@
     "outputQty": 1,
     "durationSeconds": 21600,
     "hotm": "III",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Refined Diamond",
         "qty": 1,
-        "id": "REFINED_DIAMOND"
+        "id": "REFINED_DIAMOND",
+        "market": "bazaar"
       },
       {
         "name": "Enchanted Gold Block",
         "qty": 2,
-        "id": "ENCHANTED_GOLD_BLOCK"
+        "id": "ENCHANTED_GOLD_BLOCK",
+        "market": "bazaar"
       },
       {
         "name": "Glacite Jewel",
         "qty": 5,
-        "id": "GLACITE_JEWEL"
+        "id": "GLACITE_JEWEL",
+        "market": "bazaar"
       }
     ]
   },
@@ -236,26 +271,31 @@
     "outputQty": 1,
     "durationSeconds": 64800,
     "hotm": "III",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Refined Titanium",
         "qty": 1,
-        "id": "REFINED_TITANIUM"
+        "id": "REFINED_TITANIUM",
+        "market": "bazaar"
       },
       {
         "name": "Refined Mithril",
         "qty": 5,
-        "id": "REFINED_MITHRIL"
+        "id": "REFINED_MITHRIL",
+        "market": "bazaar"
       },
       {
         "name": "Golden Plate",
         "qty": 1,
-        "id": "GOLDEN_PLATE"
+        "id": "GOLDEN_PLATE",
+        "market": "bazaar"
       },
       {
         "name": "Enchanted Iron Block",
         "qty": 1,
-        "id": "ENCHANTED_IRON_BLOCK"
+        "id": "ENCHANTED_IRON_BLOCK",
+        "market": "bazaar"
       }
     ]
   },
@@ -266,16 +306,19 @@
     "outputQty": 1,
     "durationSeconds": 10800,
     "hotm": "VII Tungsten VI (6)",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Refined Tungsten",
         "qty": 4,
-        "id": "REFINED_TUNGSTEN"
+        "id": "REFINED_TUNGSTEN",
+        "market": "bazaar"
       },
       {
         "name": "Glacite Amalgamation",
         "qty": 1,
-        "id": "GLACITE_AMALGAMATION"
+        "id": "GLACITE_AMALGAMATION",
+        "market": "bazaar"
       }
     ]
   },
@@ -286,16 +329,19 @@
     "outputQty": 1,
     "durationSeconds": 10800,
     "hotm": "VII Umber VI (6)",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Refined Umber",
         "qty": 4,
-        "id": "REFINED_UMBER"
+        "id": "REFINED_UMBER",
+        "market": "bazaar"
       },
       {
         "name": "Glacite Amalgamation",
         "qty": 1,
-        "id": "GLACITE_AMALGAMATION"
+        "id": "GLACITE_AMALGAMATION",
+        "market": "bazaar"
       }
     ]
   },
@@ -306,21 +352,816 @@
     "outputQty": 1,
     "durationSeconds": 1800,
     "hotm": "X",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Umber Plate",
         "qty": 1,
-        "id": "UMBER_PLATE"
+        "id": "UMBER_PLATE",
+        "market": "bazaar"
       },
       {
         "name": "Tungsten Plate",
         "qty": 1,
-        "id": "TUNGSTEN_PLATE"
+        "id": "TUNGSTEN_PLATE",
+        "market": "bazaar"
       },
       {
         "name": "Mithril Plate",
         "qty": 1,
-        "id": "MITHRIL_PLATE"
+        "id": "MITHRIL_PLATE",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Tools",
+    "name": "Mithril Drill SX-R226",
+    "outputId": "MITHRIL_DRILL_1",
+    "outputQty": 1,
+    "durationSeconds": 14400,
+    "hotm": "II",
+    "outputMarket": "auction",
+    "outputTag": "MITHRIL_DRILL_1",
+    "ingredients": [
+      {
+        "name": "Refined Mithril",
+        "qty": 3,
+        "id": "REFINED_MITHRIL",
+        "market": "bazaar"
+      },
+      {
+        "name": "Fuel Canister",
+        "qty": 1,
+        "id": "FUEL_TANK",
+        "market": "bazaar"
+      },
+      {
+        "name": "Drill Motor",
+        "qty": 1,
+        "id": "DRILL_ENGINE",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Tools",
+    "name": "Mithril Drill SX-R326",
+    "outputId": "MITHRIL_DRILL_2",
+    "outputQty": 1,
+    "durationSeconds": 30,
+    "hotm": "III",
+    "outputMarket": "auction",
+    "outputTag": "MITHRIL_DRILL_2",
+    "ingredients": [
+      {
+        "name": "Mithril Drill SX-R226",
+        "qty": 1,
+        "id": "MITHRIL_DRILL_1",
+        "market": "auction",
+        "tag": "MITHRIL_DRILL_1"
+      },
+      {
+        "name": "Golden Plate",
+        "qty": 1,
+        "id": "GOLDEN_PLATE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Mithril Plate",
+        "qty": 1,
+        "id": "MITHRIL_PLATE",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Tools",
+    "name": "Ruby Drill TX-15",
+    "outputId": "GEMSTONE_DRILL_1",
+    "outputQty": 1,
+    "durationSeconds": 14400,
+    "hotm": "IV",
+    "outputMarket": "auction",
+    "outputTag": "GEMSTONE_DRILL_1",
+    "ingredients": [
+      {
+        "name": "Fine Ruby Gemstone",
+        "qty": 6,
+        "id": "FINE_RUBY_GEM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Fuel Canister",
+        "qty": 1,
+        "id": "FUEL_TANK",
+        "market": "bazaar"
+      },
+      {
+        "name": "Drill Motor",
+        "qty": 1,
+        "id": "DRILL_ENGINE",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Tools",
+    "name": "Gemstone Drill LT-522",
+    "outputId": "GEMSTONE_DRILL_2",
+    "outputQty": 1,
+    "durationSeconds": 30,
+    "hotm": "IV",
+    "outputMarket": "auction",
+    "outputTag": "GEMSTONE_DRILL_2",
+    "ingredients": [
+      {
+        "name": "Ruby Drill TX-15",
+        "qty": 1,
+        "id": "GEMSTONE_DRILL_1",
+        "market": "auction",
+        "tag": "GEMSTONE_DRILL_1"
+      },
+      {
+        "name": "Gemstone Mixture",
+        "qty": 3,
+        "id": "GEMSTONE_MIXTURE",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Tools",
+    "name": "Topaz Drill KGR-12",
+    "outputId": "GEMSTONE_DRILL_3",
+    "outputQty": 1,
+    "durationSeconds": 30,
+    "hotm": "V",
+    "outputMarket": "auction",
+    "outputTag": "GEMSTONE_DRILL_3",
+    "ingredients": [
+      {
+        "name": "Gemstone Drill LT-522",
+        "qty": 1,
+        "id": "GEMSTONE_DRILL_2",
+        "market": "auction",
+        "tag": "GEMSTONE_DRILL_2"
+      },
+      {
+        "name": "Flawless Topaz Gemstone",
+        "qty": 1,
+        "id": "FLAWLESS_TOPAZ_GEM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Gemstone Mixture",
+        "qty": 3,
+        "id": "GEMSTONE_MIXTURE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Magma Core",
+        "qty": 8,
+        "id": "MAGMA_CORE",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Tools",
+    "name": "Jasper Drill X",
+    "outputId": "GEMSTONE_DRILL_4",
+    "outputQty": 1,
+    "durationSeconds": 30,
+    "hotm": "VI",
+    "outputMarket": "auction",
+    "outputTag": "GEMSTONE_DRILL_4",
+    "ingredients": [
+      {
+        "name": "Topaz Drill KGR-12",
+        "qty": 1,
+        "id": "GEMSTONE_DRILL_3",
+        "market": "auction",
+        "tag": "GEMSTONE_DRILL_3"
+      },
+      {
+        "name": "Flawless Jasper Gemstone",
+        "qty": 1,
+        "id": "FLAWLESS_JASPER_GEM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Treasurite",
+        "qty": 100,
+        "id": "TREASURITE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Magma Core",
+        "qty": 16,
+        "id": "MAGMA_CORE",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Tools",
+    "name": "Topaz Rod",
+    "outputId": "POLISHED_TOPAZ_ROD",
+    "outputQty": 1,
+    "durationSeconds": 43200,
+    "hotm": "V",
+    "outputMarket": "auction",
+    "outputTag": "POLISHED_TOPAZ_ROD",
+    "ingredients": [
+      {
+        "name": "Flawless Topaz Gemstone",
+        "qty": 2,
+        "id": "FLAWLESS_TOPAZ_GEM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Bejeweled Handle",
+        "qty": 3,
+        "id": "BEJEWELED_HANDLE",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Tools",
+    "name": "Titanium Drill DR-X355",
+    "outputId": "TITANIUM_DRILL_1",
+    "outputQty": 1,
+    "durationSeconds": 14400,
+    "hotm": "V",
+    "outputMarket": "auction",
+    "outputTag": "TITANIUM_DRILL_1",
+    "ingredients": [
+      {
+        "name": "Refined Titanium",
+        "qty": 8,
+        "id": "REFINED_TITANIUM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Refined Mithril",
+        "qty": 8,
+        "id": "REFINED_MITHRIL",
+        "market": "bazaar"
+      },
+      {
+        "name": "Drill Motor",
+        "qty": 1,
+        "id": "DRILL_ENGINE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Fuel Canister",
+        "qty": 1,
+        "id": "FUEL_TANK",
+        "market": "bazaar"
+      },
+      {
+        "name": "Golden Plate",
+        "qty": 6,
+        "id": "GOLDEN_PLATE",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Tools",
+    "name": "Titanium Drill DR-X455",
+    "outputId": "TITANIUM_DRILL_2",
+    "outputQty": 1,
+    "durationSeconds": 30,
+    "hotm": "V",
+    "outputMarket": "auction",
+    "outputTag": "TITANIUM_DRILL_2",
+    "ingredients": [
+      {
+        "name": "Titanium Drill DR-X355",
+        "qty": 1,
+        "id": "TITANIUM_DRILL_1",
+        "market": "auction",
+        "tag": "TITANIUM_DRILL_1"
+      },
+      {
+        "name": "Refined Diamond",
+        "qty": 10,
+        "id": "REFINED_DIAMOND",
+        "market": "bazaar"
+      },
+      {
+        "name": "Refined Titanium",
+        "qty": 12,
+        "id": "REFINED_TITANIUM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Mithril Plate",
+        "qty": 5,
+        "id": "MITHRIL_PLATE",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Tools",
+    "name": "Titanium Drill DR-X555",
+    "outputId": "TITANIUM_DRILL_3",
+    "outputQty": 1,
+    "durationSeconds": 30,
+    "hotm": "V",
+    "outputMarket": "auction",
+    "outputTag": "TITANIUM_DRILL_3",
+    "ingredients": [
+      {
+        "name": "Titanium Drill DR-X455",
+        "qty": 1,
+        "id": "TITANIUM_DRILL_2",
+        "market": "auction",
+        "tag": "TITANIUM_DRILL_2"
+      },
+      {
+        "name": "Refined Diamond",
+        "qty": 20,
+        "id": "REFINED_DIAMOND",
+        "market": "bazaar"
+      },
+      {
+        "name": "Refined Titanium",
+        "qty": 16,
+        "id": "REFINED_TITANIUM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Enchanted Iron Block",
+        "qty": 2,
+        "id": "ENCHANTED_IRON_BLOCK",
+        "market": "bazaar"
+      },
+      {
+        "name": "Mithril Plate",
+        "qty": 10,
+        "id": "MITHRIL_PLATE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Plasma",
+        "qty": 20,
+        "id": "PLASMA",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Tools",
+    "name": "Titanium Drill DR-X655",
+    "outputId": "TITANIUM_DRILL_4",
+    "outputQty": 1,
+    "durationSeconds": 30,
+    "hotm": "VI",
+    "outputMarket": "auction",
+    "outputTag": "TITANIUM_DRILL_4",
+    "ingredients": [
+      {
+        "name": "Titanium Drill DR-X555",
+        "qty": 1,
+        "id": "TITANIUM_DRILL_3",
+        "market": "auction",
+        "tag": "TITANIUM_DRILL_3"
+      },
+      {
+        "name": "Flawless Ruby Gemstone",
+        "qty": 1,
+        "id": "FLAWLESS_RUBY_GEM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Corleonite",
+        "qty": 30,
+        "id": "CORLEONITE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Refined Diamond",
+        "qty": 5,
+        "id": "REFINED_DIAMOND",
+        "market": "bazaar"
+      },
+      {
+        "name": "Refined Titanium",
+        "qty": 32,
+        "id": "REFINED_TITANIUM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Gemstone Mixture",
+        "qty": 16,
+        "id": "GEMSTONE_MIXTURE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Mithril Plate",
+        "qty": 10,
+        "id": "MITHRIL_PLATE",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Tools",
+    "name": "Reinforced Chisel",
+    "outputId": "REINFORCED_CHISEL",
+    "outputQty": 1,
+    "durationSeconds": 30,
+    "hotm": "VIII",
+    "outputMarket": "auction",
+    "outputTag": "REINFORCED_CHISEL",
+    "ingredients": [
+      {
+        "name": "Chisel",
+        "qty": 1,
+        "id": "CHISEL",
+        "market": "auction",
+        "tag": "CHISEL"
+      },
+      {
+        "name": "Refined Tungsten",
+        "qty": 2,
+        "id": "REFINED_TUNGSTEN",
+        "market": "bazaar"
+      },
+      {
+        "name": "Refined Umber",
+        "qty": 2,
+        "id": "REFINED_UMBER",
+        "market": "bazaar"
+      },
+      {
+        "name": "Bejeweled Handle",
+        "qty": 1,
+        "id": "BEJEWELED_HANDLE",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Tools",
+    "name": "Glacite-Plated Chisel",
+    "outputId": "GLACITE_CHISEL",
+    "outputQty": 1,
+    "durationSeconds": 30,
+    "hotm": "IX",
+    "outputMarket": "auction",
+    "outputTag": "GLACITE_CHISEL",
+    "ingredients": [
+      {
+        "name": "Reinforced Chisel",
+        "qty": 1,
+        "id": "REINFORCED_CHISEL",
+        "market": "auction",
+        "tag": "REINFORCED_CHISEL"
+      },
+      {
+        "name": "Glacite Amalgamation",
+        "qty": 8,
+        "id": "GLACITE_AMALGAMATION",
+        "market": "bazaar"
+      },
+      {
+        "name": "Mithril Plate",
+        "qty": 1,
+        "id": "MITHRIL_PLATE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Bejeweled Handle",
+        "qty": 1,
+        "id": "BEJEWELED_HANDLE",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Tools",
+    "name": "Perfect Chisel",
+    "outputId": "PERFECT_CHISEL",
+    "outputQty": 1,
+    "durationSeconds": 30,
+    "hotm": "X",
+    "outputMarket": "auction",
+    "outputTag": "PERFECT_CHISEL",
+    "ingredients": [
+      {
+        "name": "Glacite-Plated Chisel",
+        "qty": 1,
+        "id": "GLACITE_CHISEL",
+        "market": "auction",
+        "tag": "GLACITE_CHISEL"
+      },
+      {
+        "name": "Perfect Plate",
+        "qty": 1,
+        "id": "PERFECT_PLATE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Bejeweled Handle",
+        "qty": 1,
+        "id": "BEJEWELED_HANDLE",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Mithril Necklace",
+    "outputId": "MITHRIL_NECKLACE",
+    "outputQty": 1,
+    "durationSeconds": 3600,
+    "hotm": "II",
+    "outputMarket": "auction",
+    "outputTag": "MITHRIL_NECKLACE",
+    "ingredients": [
+      {
+        "name": "Enchanted Mithril",
+        "qty": 3,
+        "id": "ENCHANTED_MITHRIL",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Mithril Cloak",
+    "outputId": "MITHRIL_CLOAK",
+    "outputQty": 1,
+    "durationSeconds": 3600,
+    "hotm": "II",
+    "outputMarket": "auction",
+    "outputTag": "MITHRIL_CLOAK",
+    "ingredients": [
+      {
+        "name": "Enchanted Mithril",
+        "qty": 3,
+        "id": "ENCHANTED_MITHRIL",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Mithril Belt",
+    "outputId": "MITHRIL_BELT",
+    "outputQty": 1,
+    "durationSeconds": 3600,
+    "hotm": "II",
+    "outputMarket": "auction",
+    "outputTag": "MITHRIL_BELT",
+    "ingredients": [
+      {
+        "name": "Enchanted Mithril",
+        "qty": 3,
+        "id": "ENCHANTED_MITHRIL",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Mithril Gauntlet",
+    "outputId": "MITHRIL_GAUNTLET",
+    "outputQty": 1,
+    "durationSeconds": 3600,
+    "hotm": "II",
+    "outputMarket": "auction",
+    "outputTag": "MITHRIL_GAUNTLET",
+    "ingredients": [
+      {
+        "name": "Enchanted Mithril",
+        "qty": 3,
+        "id": "ENCHANTED_MITHRIL",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Titanium Necklace",
+    "outputId": "TITANIUM_NECKLACE",
+    "outputQty": 1,
+    "durationSeconds": 16200,
+    "hotm": "III",
+    "outputMarket": "auction",
+    "outputTag": "TITANIUM_NECKLACE",
+    "ingredients": [
+      {
+        "name": "Refined Mineral",
+        "qty": 16,
+        "id": "REFINED_MINERAL",
+        "market": "bazaar"
+      },
+      {
+        "name": "Refined Titanium",
+        "qty": 1,
+        "id": "REFINED_TITANIUM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Mithril Necklace",
+        "qty": 1,
+        "id": "MITHRIL_NECKLACE",
+        "market": "auction",
+        "tag": "MITHRIL_NECKLACE"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Titanium Cloak",
+    "outputId": "TITANIUM_CLOAK",
+    "outputQty": 1,
+    "durationSeconds": 16200,
+    "hotm": "III",
+    "outputMarket": "auction",
+    "outputTag": "TITANIUM_CLOAK",
+    "ingredients": [
+      {
+        "name": "Refined Mineral",
+        "qty": 16,
+        "id": "REFINED_MINERAL",
+        "market": "bazaar"
+      },
+      {
+        "name": "Refined Titanium",
+        "qty": 1,
+        "id": "REFINED_TITANIUM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Mithril Cloak",
+        "qty": 1,
+        "id": "MITHRIL_CLOAK",
+        "market": "auction",
+        "tag": "MITHRIL_CLOAK"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Titanium Belt",
+    "outputId": "TITANIUM_BELT",
+    "outputQty": 1,
+    "durationSeconds": 16200,
+    "hotm": "III",
+    "outputMarket": "auction",
+    "outputTag": "TITANIUM_BELT",
+    "ingredients": [
+      {
+        "name": "Refined Mineral",
+        "qty": 16,
+        "id": "REFINED_MINERAL",
+        "market": "bazaar"
+      },
+      {
+        "name": "Refined Titanium",
+        "qty": 1,
+        "id": "REFINED_TITANIUM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Mithril Belt",
+        "qty": 1,
+        "id": "MITHRIL_BELT",
+        "market": "auction",
+        "tag": "MITHRIL_BELT"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Titanium Gauntlet",
+    "outputId": "TITANIUM_GAUNTLET",
+    "outputQty": 1,
+    "durationSeconds": 16200,
+    "hotm": "III",
+    "outputMarket": "auction",
+    "outputTag": "TITANIUM_GAUNTLET",
+    "ingredients": [
+      {
+        "name": "Refined Mineral",
+        "qty": 16,
+        "id": "REFINED_MINERAL",
+        "market": "bazaar"
+      },
+      {
+        "name": "Refined Titanium",
+        "qty": 1,
+        "id": "REFINED_TITANIUM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Mithril Gauntlet",
+        "qty": 1,
+        "id": "MITHRIL_GAUNTLET",
+        "market": "auction",
+        "tag": "MITHRIL_GAUNTLET"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Titanium Talisman",
+    "outputId": "TITANIUM_TALISMAN",
+    "outputQty": 1,
+    "durationSeconds": 50400,
+    "hotm": "II",
+    "outputMarket": "auction",
+    "outputTag": "TITANIUM_TALISMAN",
+    "ingredients": [
+      {
+        "name": "Refined Titanium",
+        "qty": 2,
+        "id": "REFINED_TITANIUM",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Titanium Ring",
+    "outputId": "TITANIUM_RING",
+    "outputQty": 1,
+    "durationSeconds": 72000,
+    "hotm": "III",
+    "outputMarket": "auction",
+    "outputTag": "TITANIUM_RING",
+    "ingredients": [
+      {
+        "name": "Refined Titanium",
+        "qty": 6,
+        "id": "REFINED_TITANIUM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Titanium Talisman",
+        "qty": 1,
+        "id": "TITANIUM_TALISMAN",
+        "market": "auction",
+        "tag": "TITANIUM_TALISMAN"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Titanium Artifact",
+    "outputId": "TITANIUM_ARTIFACT",
+    "outputQty": 1,
+    "durationSeconds": 129600,
+    "hotm": "IV",
+    "outputMarket": "auction",
+    "outputTag": "TITANIUM_ARTIFACT",
+    "ingredients": [
+      {
+        "name": "Refined Titanium",
+        "qty": 12,
+        "id": "REFINED_TITANIUM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Titanium Ring",
+        "qty": 1,
+        "id": "TITANIUM_RING",
+        "market": "auction",
+        "tag": "TITANIUM_RING"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Titanium Relic",
+    "outputId": "TITANIUM_RELIC",
+    "outputQty": 1,
+    "durationSeconds": 259200,
+    "hotm": "V",
+    "outputMarket": "auction",
+    "outputTag": "TITANIUM_RELIC",
+    "ingredients": [
+      {
+        "name": "Refined Titanium",
+        "qty": 20,
+        "id": "REFINED_TITANIUM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Titanium Artifact",
+        "qty": 1,
+        "id": "TITANIUM_ARTIFACT",
+        "market": "auction",
+        "tag": "TITANIUM_ARTIFACT"
       }
     ]
   },
@@ -331,26 +1172,344 @@
     "outputQty": 1,
     "durationSeconds": 129600,
     "hotm": "IV",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Glossy Gemstone",
         "qty": 32,
-        "id": "GLOSSY_GEMSTONE"
+        "id": "GLOSSY_GEMSTONE",
+        "market": "bazaar"
       },
       {
         "name": "Refined Mineral",
         "qty": 32,
-        "id": "REFINED_MINERAL"
+        "id": "REFINED_MINERAL",
+        "market": "bazaar"
       },
       {
         "name": "Divan Fragment",
         "qty": 5,
-        "id": "DIVAN_FRAGMENT"
+        "id": "DIVAN_FRAGMENT",
+        "market": "bazaar"
       },
       {
         "name": "Enchanted Gold Block",
         "qty": 16,
-        "id": "ENCHANTED_GOLD_BLOCK"
+        "id": "ENCHANTED_GOLD_BLOCK",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Helmet of Divan",
+    "outputId": "DIVAN_HELMET",
+    "outputQty": 1,
+    "durationSeconds": 86400,
+    "hotm": "VI",
+    "outputMarket": "auction",
+    "outputTag": "DIVAN_HELMET",
+    "ingredients": [
+      {
+        "name": "Divan Fragment",
+        "qty": 5,
+        "id": "DIVAN_FRAGMENT",
+        "market": "bazaar"
+      },
+      {
+        "name": "Gemstone Mixture",
+        "qty": 10,
+        "id": "GEMSTONE_MIXTURE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Flawless Ruby Gemstone",
+        "qty": 1,
+        "id": "FLAWLESS_RUBY_GEM",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Chestplate of Divan",
+    "outputId": "DIVAN_CHESTPLATE",
+    "outputQty": 1,
+    "durationSeconds": 86400,
+    "hotm": "VI",
+    "outputMarket": "auction",
+    "outputTag": "DIVAN_CHESTPLATE",
+    "ingredients": [
+      {
+        "name": "Divan Fragment",
+        "qty": 8,
+        "id": "DIVAN_FRAGMENT",
+        "market": "bazaar"
+      },
+      {
+        "name": "Gemstone Mixture",
+        "qty": 10,
+        "id": "GEMSTONE_MIXTURE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Flawless Ruby Gemstone",
+        "qty": 1,
+        "id": "FLAWLESS_RUBY_GEM",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Leggings of Divan",
+    "outputId": "DIVAN_LEGGINGS",
+    "outputQty": 1,
+    "durationSeconds": 86400,
+    "hotm": "VI",
+    "outputMarket": "auction",
+    "outputTag": "DIVAN_LEGGINGS",
+    "ingredients": [
+      {
+        "name": "Divan Fragment",
+        "qty": 7,
+        "id": "DIVAN_FRAGMENT",
+        "market": "bazaar"
+      },
+      {
+        "name": "Gemstone Mixture",
+        "qty": 10,
+        "id": "GEMSTONE_MIXTURE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Flawless Ruby Gemstone",
+        "qty": 1,
+        "id": "FLAWLESS_RUBY_GEM",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Boots of Divan",
+    "outputId": "DIVAN_BOOTS",
+    "outputQty": 1,
+    "durationSeconds": 86400,
+    "hotm": "VI",
+    "outputMarket": "auction",
+    "outputTag": "DIVAN_BOOTS",
+    "ingredients": [
+      {
+        "name": "Divan Fragment",
+        "qty": 4,
+        "id": "DIVAN_FRAGMENT",
+        "market": "bazaar"
+      },
+      {
+        "name": "Gemstone Mixture",
+        "qty": 10,
+        "id": "GEMSTONE_MIXTURE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Flawless Ruby Gemstone",
+        "qty": 1,
+        "id": "FLAWLESS_RUBY_GEM",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Amber Necklace",
+    "outputId": "AMBER_NECKLACE",
+    "outputQty": 1,
+    "durationSeconds": 86400,
+    "hotm": "V",
+    "outputMarket": "auction",
+    "outputTag": "AMBER_NECKLACE",
+    "ingredients": [
+      {
+        "name": "Glossy Gemstone",
+        "qty": 32,
+        "id": "GLOSSY_GEMSTONE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Flawless Amber Gemstone",
+        "qty": 2,
+        "id": "FLAWLESS_AMBER_GEM",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Sapphire Cloak",
+    "outputId": "SAPPHIRE_CLOAK",
+    "outputQty": 1,
+    "durationSeconds": 86400,
+    "hotm": "V",
+    "outputMarket": "auction",
+    "outputTag": "SAPPHIRE_CLOAK",
+    "ingredients": [
+      {
+        "name": "Glossy Gemstone",
+        "qty": 32,
+        "id": "GLOSSY_GEMSTONE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Flawless Sapphire Gemstone",
+        "qty": 2,
+        "id": "FLAWLESS_SAPPHIRE_GEM",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Jade Belt",
+    "outputId": "JADE_BELT",
+    "outputQty": 1,
+    "durationSeconds": 86400,
+    "hotm": "V",
+    "outputMarket": "auction",
+    "outputTag": "JADE_BELT",
+    "ingredients": [
+      {
+        "name": "Glossy Gemstone",
+        "qty": 32,
+        "id": "GLOSSY_GEMSTONE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Flawless Jade Gemstone",
+        "qty": 2,
+        "id": "FLAWLESS_JADE_GEM",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Amethyst Gauntlet",
+    "outputId": "AMETHYST_GAUNTLET",
+    "outputQty": 1,
+    "durationSeconds": 86400,
+    "hotm": "V",
+    "outputMarket": "auction",
+    "outputTag": "AMETHYST_GAUNTLET",
+    "ingredients": [
+      {
+        "name": "Glossy Gemstone",
+        "qty": 32,
+        "id": "GLOSSY_GEMSTONE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Flawless Amethyst Gemstone",
+        "qty": 2,
+        "id": "FLAWLESS_AMETHYST_GEM",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Dwarven Handwarmers",
+    "outputId": "DWARVEN_HANDWARMERS",
+    "outputQty": 1,
+    "durationSeconds": 14400,
+    "hotm": "VIII",
+    "outputMarket": "auction",
+    "outputTag": "DWARVEN_HANDWARMERS",
+    "ingredients": [
+      {
+        "name": "Umber Plate",
+        "qty": 1,
+        "id": "UMBER_PLATE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Tungsten Plate",
+        "qty": 1,
+        "id": "TUNGSTEN_PLATE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Flawless Jade Gemstone",
+        "qty": 1,
+        "id": "FLAWLESS_JADE_GEM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Flawless Amber Gemstone",
+        "qty": 1,
+        "id": "FLAWLESS_AMBER_GEM",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Dwarven Metal Talisman",
+    "outputId": "DWARVEN_METAL",
+    "outputQty": 1,
+    "durationSeconds": 86400,
+    "hotm": "VIII",
+    "outputMarket": "auction",
+    "outputTag": "DWARVEN_METAL",
+    "ingredients": [
+      {
+        "name": "Refined Umber",
+        "qty": 4,
+        "id": "REFINED_UMBER",
+        "market": "bazaar"
+      },
+      {
+        "name": "Refined Tungsten",
+        "qty": 4,
+        "id": "REFINED_TUNGSTEN",
+        "market": "bazaar"
+      },
+      {
+        "name": "Glacite Amalgamation",
+        "qty": 4,
+        "id": "GLACITE_AMALGAMATION",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Gear",
+    "name": "Pendant of Divan",
+    "outputId": "DIVAN_PENDANT",
+    "outputQty": 1,
+    "durationSeconds": 604800,
+    "hotm": "X",
+    "outputMarket": "auction",
+    "outputTag": "DIVAN_PENDANT",
+    "ingredients": [
+      {
+        "name": "Shattered Locket",
+        "qty": 1,
+        "id": "SHATTERED_PENDANT",
+        "market": "auction",
+        "tag": "SHATTERED_PENDANT"
+      },
+      {
+        "name": "Perfect Plate",
+        "qty": 1,
+        "id": "PERFECT_PLATE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Divan Fragment",
+        "qty": 10,
+        "id": "DIVAN_FRAGMENT",
+        "market": "bazaar"
       }
     ]
   },
@@ -361,11 +1520,13 @@
     "outputQty": 1,
     "durationSeconds": 21600,
     "hotm": "II",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Refined Diamond",
         "qty": 3,
-        "id": "REFINED_DIAMOND"
+        "id": "REFINED_DIAMOND",
+        "market": "bazaar"
       }
     ]
   },
@@ -376,11 +1537,13 @@
     "outputQty": 1,
     "durationSeconds": 21600,
     "hotm": "II",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Glacite Jewel",
         "qty": 5,
-        "id": "GLACITE_JEWEL"
+        "id": "GLACITE_JEWEL",
+        "market": "bazaar"
       }
     ]
   },
@@ -391,11 +1554,13 @@
     "outputQty": 1,
     "durationSeconds": 21600,
     "hotm": "III",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Starfall",
         "qty": 512,
-        "id": "STARFALL"
+        "id": "STARFALL",
+        "market": "bazaar"
       }
     ]
   },
@@ -406,11 +1571,13 @@
     "outputQty": 1,
     "durationSeconds": 21600,
     "hotm": "III",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Refined Mithril",
         "qty": 2,
-        "id": "REFINED_MITHRIL"
+        "id": "REFINED_MITHRIL",
+        "market": "bazaar"
       }
     ]
   },
@@ -421,16 +1588,19 @@
     "outputQty": 1,
     "durationSeconds": 21600,
     "hotm": "III",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Enchanted Cobblestone",
         "qty": 128,
-        "id": "ENCHANTED_COBBLESTONE"
+        "id": "ENCHANTED_COBBLESTONE",
+        "market": "bazaar"
       },
       {
         "name": "Treasurite",
         "qty": 64,
-        "id": "TREASURITE"
+        "id": "TREASURITE",
+        "market": "bazaar"
       }
     ]
   },
@@ -441,16 +1611,19 @@
     "outputQty": 1,
     "durationSeconds": 21600,
     "hotm": "III",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Refined Titanium",
         "qty": 1,
-        "id": "REFINED_TITANIUM"
+        "id": "REFINED_TITANIUM",
+        "market": "bazaar"
       },
       {
         "name": "Enchanted Lapis Lazuli",
         "qty": 16,
-        "id": "ENCHANTED_LAPIS_LAZULI"
+        "id": "ENCHANTED_LAPIS_LAZULI",
+        "market": "bazaar"
       }
     ]
   },
@@ -461,21 +1634,25 @@
     "outputQty": 1,
     "durationSeconds": 21600,
     "hotm": "IV",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Glossy Gemstone",
         "qty": 32,
-        "id": "GLOSSY_GEMSTONE"
+        "id": "GLOSSY_GEMSTONE",
+        "market": "bazaar"
       },
       {
         "name": "Refined Mithril",
         "qty": 1,
-        "id": "REFINED_MITHRIL"
+        "id": "REFINED_MITHRIL",
+        "market": "bazaar"
       },
       {
         "name": "Refined Diamond",
         "qty": 2,
-        "id": "REFINED_DIAMOND"
+        "id": "REFINED_DIAMOND",
+        "market": "bazaar"
       }
     ]
   },
@@ -486,16 +1663,19 @@
     "outputQty": 1,
     "durationSeconds": 21600,
     "hotm": "IV Hard Stone IV (4)",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Enchanted Hard Stone",
         "qty": 128,
-        "id": "ENCHANTED_HARD_STONE"
+        "id": "ENCHANTED_HARD_STONE",
+        "market": "bazaar"
       },
       {
         "name": "Flawless Topaz Gemstone",
         "qty": 1,
-        "id": "FLAWLESS_TOPAZ_GEM"
+        "id": "FLAWLESS_TOPAZ_GEM",
+        "market": "bazaar"
       }
     ]
   },
@@ -506,16 +1686,19 @@
     "outputQty": 1,
     "durationSeconds": 21600,
     "hotm": "VI",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Fine Amber Gemstone",
         "qty": 12,
-        "id": "FINE_AMBER_GEM"
+        "id": "FINE_AMBER_GEM",
+        "market": "bazaar"
       },
       {
         "name": "Golden Plate",
         "qty": 1,
-        "id": "GOLDEN_PLATE"
+        "id": "GOLDEN_PLATE",
+        "market": "bazaar"
       }
     ]
   },
@@ -526,16 +1709,778 @@
     "outputQty": 1,
     "durationSeconds": 21600,
     "hotm": "VII Glacite V (5)",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Glacite Amalgamation",
         "qty": 4,
-        "id": "GLACITE_AMALGAMATION"
+        "id": "GLACITE_AMALGAMATION",
+        "market": "bazaar"
       },
       {
         "name": "Flawless Onyx Gemstone",
         "qty": 1,
-        "id": "FLAWLESS_ONYX_GEM"
+        "id": "FLAWLESS_ONYX_GEM",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Drill_Parts",
+    "name": "Starfall Seasoning",
+    "outputId": "STARFALL_SEASONING",
+    "outputQty": 1,
+    "durationSeconds": 64800,
+    "hotm": "II",
+    "outputMarket": "auction",
+    "outputTag": "STARFALL_SEASONING",
+    "ingredients": [
+      {
+        "name": "Treasurite",
+        "qty": 16,
+        "id": "TREASURITE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Starfall",
+        "qty": 64,
+        "id": "STARFALL",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Drill_Parts",
+    "name": "Goblin Omelette",
+    "outputId": "GOBLIN_OMELETTE",
+    "outputQty": 1,
+    "durationSeconds": 64800,
+    "hotm": "III",
+    "outputMarket": "auction",
+    "outputTag": "GOBLIN_OMELETTE",
+    "ingredients": [
+      {
+        "name": "Goblin Egg",
+        "qty": 96,
+        "id": "GOBLIN_EGG",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Drill_Parts",
+    "name": "Blue Cheese Goblin Omelette",
+    "outputId": "GOBLIN_OMELETTE_BLUE_CHEESE",
+    "outputQty": 1,
+    "durationSeconds": 64800,
+    "hotm": "V",
+    "outputMarket": "auction",
+    "outputTag": "GOBLIN_OMELETTE_BLUE_CHEESE",
+    "ingredients": [
+      {
+        "name": "Blue Goblin Egg",
+        "qty": 96,
+        "id": "GOBLIN_EGG_BLUE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Flawless Sapphire Gemstone",
+        "qty": 1,
+        "id": "FLAWLESS_SAPPHIRE_GEM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Goblin Omelette",
+        "qty": 1,
+        "id": "GOBLIN_OMELETTE",
+        "market": "auction",
+        "tag": "GOBLIN_OMELETTE"
+      }
+    ]
+  },
+  {
+    "section": "Drill_Parts",
+    "name": "Pesto Goblin Omelette",
+    "outputId": "GOBLIN_OMELETTE_PESTO",
+    "outputQty": 1,
+    "durationSeconds": 64800,
+    "hotm": "V",
+    "outputMarket": "auction",
+    "outputTag": "GOBLIN_OMELETTE_PESTO",
+    "ingredients": [
+      {
+        "name": "Green Goblin Egg",
+        "qty": 96,
+        "id": "GOBLIN_EGG_GREEN",
+        "market": "bazaar"
+      },
+      {
+        "name": "Flawless Jade Gemstone",
+        "qty": 1,
+        "id": "FLAWLESS_JADE_GEM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Goblin Omelette",
+        "qty": 1,
+        "id": "GOBLIN_OMELETTE",
+        "market": "auction",
+        "tag": "GOBLIN_OMELETTE"
+      }
+    ]
+  },
+  {
+    "section": "Drill_Parts",
+    "name": "Spicy Goblin Omelette",
+    "outputId": "GOBLIN_OMELETTE_SPICY",
+    "outputQty": 1,
+    "durationSeconds": 64800,
+    "hotm": "V",
+    "outputMarket": "auction",
+    "outputTag": "GOBLIN_OMELETTE_SPICY",
+    "ingredients": [
+      {
+        "name": "Red Goblin Egg",
+        "qty": 96,
+        "id": "GOBLIN_EGG_RED",
+        "market": "bazaar"
+      },
+      {
+        "name": "Flawless Ruby Gemstone",
+        "qty": 1,
+        "id": "FLAWLESS_RUBY_GEM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Goblin Omelette",
+        "qty": 1,
+        "id": "GOBLIN_OMELETTE",
+        "market": "auction",
+        "tag": "GOBLIN_OMELETTE"
+      }
+    ]
+  },
+  {
+    "section": "Drill_Parts",
+    "name": "Sunny Side Goblin Omelette",
+    "outputId": "GOBLIN_OMELETTE_SUNNY_SIDE",
+    "outputQty": 1,
+    "durationSeconds": 64800,
+    "hotm": "V",
+    "outputMarket": "auction",
+    "outputTag": "GOBLIN_OMELETTE_SUNNY_SIDE",
+    "ingredients": [
+      {
+        "name": "Yellow Goblin Egg",
+        "qty": 96,
+        "id": "GOBLIN_EGG_YELLOW",
+        "market": "bazaar"
+      },
+      {
+        "name": "Flawless Topaz Gemstone",
+        "qty": 1,
+        "id": "FLAWLESS_TOPAZ_GEM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Goblin Omelette",
+        "qty": 1,
+        "id": "GOBLIN_OMELETTE",
+        "market": "auction",
+        "tag": "GOBLIN_OMELETTE"
+      }
+    ]
+  },
+  {
+    "section": "Drill_Parts",
+    "name": "Tungsten Regulator",
+    "outputId": "TUNGSTEN_KEYCHAIN",
+    "outputQty": 1,
+    "durationSeconds": 64800,
+    "hotm": "VIII",
+    "outputMarket": "auction",
+    "outputTag": "TUNGSTEN_KEYCHAIN",
+    "ingredients": [
+      {
+        "name": "Perfect Opal Gemstone",
+        "qty": 1,
+        "id": "PERFECT_OPAL_GEM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Fuel Canister",
+        "qty": 5,
+        "id": "FUEL_TANK",
+        "market": "bazaar"
+      },
+      {
+        "name": "Tungsten Plate",
+        "qty": 5,
+        "id": "TUNGSTEN_PLATE",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Drill_Parts",
+    "name": "Mithril-Plated Drill Engine",
+    "outputId": "MITHRIL_DRILL_ENGINE",
+    "outputQty": 1,
+    "durationSeconds": 86400,
+    "hotm": "III",
+    "outputMarket": "auction",
+    "outputTag": "MITHRIL_DRILL_ENGINE",
+    "ingredients": [
+      {
+        "name": "Drill Motor",
+        "qty": 2,
+        "id": "DRILL_ENGINE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Mithril Plate",
+        "qty": 1,
+        "id": "MITHRIL_PLATE",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Drill_Parts",
+    "name": "Titanium-Plated Drill Engine",
+    "outputId": "TITANIUM_DRILL_ENGINE",
+    "outputQty": 1,
+    "durationSeconds": 30,
+    "hotm": "V",
+    "outputMarket": "auction",
+    "outputTag": "TITANIUM_DRILL_ENGINE",
+    "ingredients": [
+      {
+        "name": "Drill Motor",
+        "qty": 2,
+        "id": "DRILL_ENGINE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Refined Titanium",
+        "qty": 8,
+        "id": "REFINED_TITANIUM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Mithril-Plated Drill Engine",
+        "qty": 1,
+        "id": "MITHRIL_DRILL_ENGINE",
+        "market": "auction",
+        "tag": "MITHRIL_DRILL_ENGINE"
+      }
+    ]
+  },
+  {
+    "section": "Drill_Parts",
+    "name": "Ruby-Polished Drill Engine",
+    "outputId": "RUBY_POLISHED_DRILL_ENGINE",
+    "outputQty": 1,
+    "durationSeconds": 30,
+    "hotm": "VII",
+    "outputMarket": "auction",
+    "outputTag": "RUBY_POLISHED_DRILL_ENGINE",
+    "ingredients": [
+      {
+        "name": "Titanium-Plated Drill Engine",
+        "qty": 1,
+        "id": "TITANIUM_DRILL_ENGINE",
+        "market": "auction",
+        "tag": "TITANIUM_DRILL_ENGINE"
+      },
+      {
+        "name": "Perfect Ruby Gemstone",
+        "qty": 1,
+        "id": "PERFECT_RUBY_GEM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Precursor Apparatus",
+        "qty": 4,
+        "id": "PRECURSOR_APPARATUS",
+        "market": "bazaar"
+      },
+      {
+        "name": "Drill Motor",
+        "qty": 5,
+        "id": "DRILL_ENGINE",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Drill_Parts",
+    "name": "Sapphire-Polished Drill Engine",
+    "outputId": "SAPPHIRE_POLISHED_DRILL_ENGINE",
+    "outputQty": 1,
+    "durationSeconds": 30,
+    "hotm": "VIII",
+    "outputMarket": "auction",
+    "outputTag": "SAPPHIRE_POLISHED_DRILL_ENGINE",
+    "ingredients": [
+      {
+        "name": "Ruby-Polished Drill Engine",
+        "qty": 1,
+        "id": "RUBY_POLISHED_DRILL_ENGINE",
+        "market": "auction",
+        "tag": "RUBY_POLISHED_DRILL_ENGINE"
+      },
+      {
+        "name": "Perfect Sapphire Gemstone",
+        "qty": 3,
+        "id": "PERFECT_SAPPHIRE_GEM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Precursor Apparatus",
+        "qty": 8,
+        "id": "PRECURSOR_APPARATUS",
+        "market": "bazaar"
+      },
+      {
+        "name": "Drill Motor",
+        "qty": 5,
+        "id": "DRILL_ENGINE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Plasma",
+        "qty": 16,
+        "id": "PLASMA",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Drill_Parts",
+    "name": "Amber-Polished Drill Engine",
+    "outputId": "AMBER_POLISHED_DRILL_ENGINE",
+    "outputQty": 1,
+    "durationSeconds": 30,
+    "hotm": "IX",
+    "outputMarket": "auction",
+    "outputTag": "AMBER_POLISHED_DRILL_ENGINE",
+    "ingredients": [
+      {
+        "name": "Sapphire-Polished Drill Engine",
+        "qty": 1,
+        "id": "SAPPHIRE_POLISHED_DRILL_ENGINE",
+        "market": "auction",
+        "tag": "SAPPHIRE_POLISHED_DRILL_ENGINE"
+      },
+      {
+        "name": "Perfect Amber Gemstone",
+        "qty": 5,
+        "id": "PERFECT_AMBER_GEM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Precursor Apparatus",
+        "qty": 16,
+        "id": "PRECURSOR_APPARATUS",
+        "market": "bazaar"
+      },
+      {
+        "name": "Drill Motor",
+        "qty": 5,
+        "id": "DRILL_ENGINE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Plasma",
+        "qty": 32,
+        "id": "PLASMA",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Drill_Parts",
+    "name": "Mithril-Infused Fuel Tank",
+    "outputId": "MITHRIL_FUEL_TANK",
+    "outputQty": 1,
+    "durationSeconds": 86400,
+    "hotm": "III",
+    "outputMarket": "auction",
+    "outputTag": "MITHRIL_FUEL_TANK",
+    "ingredients": [
+      {
+        "name": "Refined Diamond",
+        "qty": 5,
+        "id": "REFINED_DIAMOND",
+        "market": "bazaar"
+      },
+      {
+        "name": "Refined Mithril",
+        "qty": 10,
+        "id": "REFINED_MITHRIL",
+        "market": "bazaar"
+      },
+      {
+        "name": "Fuel Canister",
+        "qty": 5,
+        "id": "FUEL_TANK",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Drill_Parts",
+    "name": "Titanium-Infused Fuel Tank",
+    "outputId": "TITANIUM_FUEL_TANK",
+    "outputQty": 1,
+    "durationSeconds": 30,
+    "hotm": "V",
+    "outputMarket": "auction",
+    "outputTag": "TITANIUM_FUEL_TANK",
+    "ingredients": [
+      {
+        "name": "Mithril-Infused Fuel Tank",
+        "qty": 1,
+        "id": "MITHRIL_FUEL_TANK",
+        "market": "auction",
+        "tag": "MITHRIL_FUEL_TANK"
+      },
+      {
+        "name": "Refined Titanium",
+        "qty": 10,
+        "id": "REFINED_TITANIUM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Refined Diamond",
+        "qty": 5,
+        "id": "REFINED_DIAMOND",
+        "market": "bazaar"
+      },
+      {
+        "name": "Fuel Canister",
+        "qty": 5,
+        "id": "FUEL_TANK",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Drill_Parts",
+    "name": "Gemstone Fuel Tank",
+    "outputId": "GEMSTONE_FUEL_TANK",
+    "outputQty": 1,
+    "durationSeconds": 30,
+    "hotm": "VII",
+    "outputMarket": "auction",
+    "outputTag": "GEMSTONE_FUEL_TANK",
+    "ingredients": [
+      {
+        "name": "Titanium-Infused Fuel Tank",
+        "qty": 1,
+        "id": "TITANIUM_FUEL_TANK",
+        "market": "auction",
+        "tag": "TITANIUM_FUEL_TANK"
+      },
+      {
+        "name": "Precursor Apparatus",
+        "qty": 4,
+        "id": "PRECURSOR_APPARATUS",
+        "market": "bazaar"
+      },
+      {
+        "name": "Gemstone Mixture",
+        "qty": 10,
+        "id": "GEMSTONE_MIXTURE",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Drill_Parts",
+    "name": "Perfectly-Cut Fuel Tank",
+    "outputId": "PERFECTLY_CUT_FUEL_TANK",
+    "outputQty": 1,
+    "durationSeconds": 30,
+    "hotm": "VIII",
+    "outputMarket": "auction",
+    "outputTag": "PERFECTLY_CUT_FUEL_TANK",
+    "ingredients": [
+      {
+        "name": "Gemstone Fuel Tank",
+        "qty": 1,
+        "id": "GEMSTONE_FUEL_TANK",
+        "market": "auction",
+        "tag": "GEMSTONE_FUEL_TANK"
+      },
+      {
+        "name": "Precursor Apparatus",
+        "qty": 16,
+        "id": "PRECURSOR_APPARATUS",
+        "market": "bazaar"
+      },
+      {
+        "name": "Gemstone Mixture",
+        "qty": 25,
+        "id": "GEMSTONE_MIXTURE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Plasma",
+        "qty": 32,
+        "id": "PLASMA",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Other",
+    "name": "Beacon II",
+    "outputId": "BEACON_2",
+    "outputQty": 1,
+    "durationSeconds": 72000,
+    "hotm": "II",
+    "outputMarket": "auction",
+    "outputTag": "BEACON_2",
+    "ingredients": [
+      {
+        "name": "Beacon I",
+        "qty": 1,
+        "id": "BEACON_1",
+        "market": "auction",
+        "tag": "BEACON_1"
+      },
+      {
+        "name": "Refined Mithril",
+        "qty": 5,
+        "id": "REFINED_MITHRIL",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Other",
+    "name": "Beacon III",
+    "outputId": "BEACON_3",
+    "outputQty": 1,
+    "durationSeconds": 108000,
+    "hotm": "III",
+    "outputMarket": "auction",
+    "outputTag": "BEACON_3",
+    "ingredients": [
+      {
+        "name": "Beacon II",
+        "qty": 1,
+        "id": "BEACON_2",
+        "market": "auction",
+        "tag": "BEACON_2"
+      },
+      {
+        "name": "Refined Mithril",
+        "qty": 10,
+        "id": "REFINED_MITHRIL",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Other",
+    "name": "Beacon IV",
+    "outputId": "BEACON_4",
+    "outputQty": 1,
+    "durationSeconds": 144000,
+    "hotm": "IV",
+    "outputMarket": "auction",
+    "outputTag": "BEACON_4",
+    "ingredients": [
+      {
+        "name": "Beacon III",
+        "qty": 1,
+        "id": "BEACON_3",
+        "market": "auction",
+        "tag": "BEACON_3"
+      },
+      {
+        "name": "Refined Mithril",
+        "qty": 20,
+        "id": "REFINED_MITHRIL",
+        "market": "bazaar"
+      },
+      {
+        "name": "Plasma",
+        "qty": 1,
+        "id": "PLASMA",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Other",
+    "name": "Beacon V",
+    "outputId": "BEACON_5",
+    "outputQty": 1,
+    "durationSeconds": 180000,
+    "hotm": "V",
+    "outputMarket": "auction",
+    "outputTag": "BEACON_5",
+    "ingredients": [
+      {
+        "name": "Beacon IV",
+        "qty": 1,
+        "id": "BEACON_4",
+        "market": "auction",
+        "tag": "BEACON_4"
+      },
+      {
+        "name": "Refined Mithril",
+        "qty": 40,
+        "id": "REFINED_MITHRIL",
+        "market": "bazaar"
+      },
+      {
+        "name": "Plasma",
+        "qty": 5,
+        "id": "PLASMA",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Other",
+    "name": "Mithril Lantern",
+    "outputId": "MITHRIL_LANTERN",
+    "outputQty": 1,
+    "durationSeconds": 1800,
+    "hotm": "II",
+    "outputMarket": "auction",
+    "outputTag": "MITHRIL_LANTERN",
+    "ingredients": [
+      {
+        "name": "Dwarven Lantern",
+        "qty": 1,
+        "id": "LANTERN",
+        "market": "auction",
+        "tag": "LANTERN"
+      },
+      {
+        "name": "Refined Mithril",
+        "qty": 1,
+        "id": "REFINED_MITHRIL",
+        "market": "bazaar"
+      },
+      {
+        "name": "Enchanted Emerald",
+        "qty": 16,
+        "id": "ENCHANTED_EMERALD",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Other",
+    "name": "Titanium Lantern",
+    "outputId": "TITANIUM_LANTERN",
+    "outputQty": 1,
+    "durationSeconds": 14400,
+    "hotm": "V",
+    "outputMarket": "auction",
+    "outputTag": "TITANIUM_LANTERN",
+    "ingredients": [
+      {
+        "name": "Mithril Lantern",
+        "qty": 1,
+        "id": "MITHRIL_LANTERN",
+        "market": "auction",
+        "tag": "MITHRIL_LANTERN"
+      },
+      {
+        "name": "Refined Titanium",
+        "qty": 2,
+        "id": "REFINED_TITANIUM",
+        "market": "bazaar"
+      },
+      {
+        "name": "Enchanted Emerald Block",
+        "qty": 1,
+        "id": "ENCHANTED_EMERALD_BLOCK",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Other",
+    "name": "Glacite Lantern",
+    "outputId": "GLACITE_LANTERN",
+    "outputQty": 1,
+    "durationSeconds": 43200,
+    "hotm": "VIII",
+    "outputMarket": "auction",
+    "outputTag": "GLACITE_LANTERN",
+    "ingredients": [
+      {
+        "name": "Titanium Lantern",
+        "qty": 1,
+        "id": "TITANIUM_LANTERN",
+        "market": "auction",
+        "tag": "TITANIUM_LANTERN"
+      },
+      {
+        "name": "Glacite Amalgamation",
+        "qty": 4,
+        "id": "GLACITE_AMALGAMATION",
+        "market": "bazaar"
+      },
+      {
+        "name": "Enchanted Emerald Block",
+        "qty": 2,
+        "id": "ENCHANTED_EMERALD_BLOCK",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Other",
+    "name": "Will-o'-wisp",
+    "outputId": "WILL_O_WISP",
+    "outputQty": 1,
+    "durationSeconds": 86400,
+    "hotm": "X",
+    "outputMarket": "auction",
+    "outputTag": "WILL_O_WISP",
+    "ingredients": [
+      {
+        "name": "Glacite Lantern",
+        "qty": 1,
+        "id": "GLACITE_LANTERN",
+        "market": "auction",
+        "tag": "GLACITE_LANTERN"
+      },
+      {
+        "name": "Caged Wisp",
+        "qty": 1,
+        "id": "CAGED_WISP",
+        "market": "auction",
+        "tag": "CAGED_WISP"
+      },
+      {
+        "name": "Perfect Plate",
+        "qty": 1,
+        "id": "PERFECT_PLATE",
+        "market": "bazaar"
+      },
+      {
+        "name": "Everburning Flame",
+        "qty": 1,
+        "id": "EVERBURNING_FLAME",
+        "market": "auction",
+        "tag": "EVERBURNING_FLAME"
+      },
+      {
+        "name": "Enchanted Emerald Block",
+        "qty": 8,
+        "id": "ENCHANTED_EMERALD_BLOCK",
+        "market": "bazaar"
       }
     ]
   },
@@ -546,11 +2491,13 @@
     "outputQty": 1,
     "durationSeconds": 7200,
     "hotm": "II",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Starfall",
         "qty": 256,
-        "id": "STARFALL"
+        "id": "STARFALL",
+        "market": "bazaar"
       }
     ]
   },
@@ -561,16 +2508,19 @@
     "outputQty": 1,
     "durationSeconds": 30,
     "hotm": "VII Tungsten IV (4)",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Enchanted Tungsten",
         "qty": 192,
-        "id": "ENCHANTED_TUNGSTEN"
+        "id": "ENCHANTED_TUNGSTEN",
+        "market": "bazaar"
       },
       {
         "name": "Bejeweled Handle",
         "qty": 1,
-        "id": "BEJEWELED_HANDLE"
+        "id": "BEJEWELED_HANDLE",
+        "market": "bazaar"
       }
     ]
   },
@@ -581,16 +2531,19 @@
     "outputQty": 1,
     "durationSeconds": 30,
     "hotm": "VII Umber IV (4)",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Enchanted Umber",
         "qty": 192,
-        "id": "ENCHANTED_UMBER"
+        "id": "ENCHANTED_UMBER",
+        "market": "bazaar"
       },
       {
         "name": "Bejeweled Handle",
         "qty": 1,
-        "id": "BEJEWELED_HANDLE"
+        "id": "BEJEWELED_HANDLE",
+        "market": "bazaar"
       }
     ]
   },
@@ -601,16 +2554,43 @@
     "outputQty": 1,
     "durationSeconds": 1800,
     "hotm": "X",
+    "outputMarket": "bazaar",
     "ingredients": [
       {
         "name": "Bejeweled Handle",
         "qty": 1,
-        "id": "BEJEWELED_HANDLE"
+        "id": "BEJEWELED_HANDLE",
+        "market": "bazaar"
       },
       {
         "name": "Perfect Plate",
         "qty": 1,
-        "id": "PERFECT_PLATE"
+        "id": "PERFECT_PLATE",
+        "market": "bazaar"
+      }
+    ]
+  },
+  {
+    "section": "Other",
+    "name": "Portable Campfire",
+    "outputId": "PORTABLE_CAMPFIRE",
+    "outputQty": 1,
+    "durationSeconds": 1800,
+    "hotm": "VIII",
+    "outputMarket": "auction",
+    "outputTag": "PORTABLE_CAMPFIRE",
+    "ingredients": [
+      {
+        "name": "Refined Umber",
+        "qty": 1,
+        "id": "REFINED_UMBER",
+        "market": "bazaar"
+      },
+      {
+        "name": "Match-Sticks",
+        "qty": 16,
+        "id": "MATCH_STICKS",
+        "market": "bazaar"
       }
     ]
   }

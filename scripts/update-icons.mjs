@@ -23,6 +23,7 @@ if (ids.some((id) => typeof id !== "string" || !/^[A-Z0-9_]+$/.test(id))) {
 const icons = [];
 for (const id of ids) {
   let image;
+  let extension;
   let invalidResponse = "";
   for (let attempt = 1; attempt <= 3; attempt++) {
     const response = await fetch(
@@ -39,9 +40,33 @@ for (const id of ids) {
       const isWebp =
         candidate.toString("ascii", 0, 4) === "RIFF" &&
         candidate.toString("ascii", 8, 12) === "WEBP";
+      const isPng =
+        candidate.subarray(0, 8).toString("hex") === "89504e470d0a1a0a";
 
+      // SkyCrypt's WebP path serves proper item textures; its PNG path has
+      // served identical placeholder bytes for distinct items, so a PNG
+      // response falls back to Coflnet's per-tag icon before being trusted.
       if (isWebp) {
         image = candidate;
+        extension = "webp";
+        break;
+      }
+      if (isPng) {
+        const coflnet = await fetch(
+          `https://sky.coflnet.com/static/icon/${encodeURIComponent(id)}`,
+          { signal: AbortSignal.timeout(60_000) },
+        );
+        const fallback = Buffer.from(await coflnet.arrayBuffer());
+        if (
+          coflnet.ok &&
+          fallback.subarray(0, 8).toString("hex") === "89504e470d0a1a0a"
+        ) {
+          image = fallback;
+          extension = "png";
+          break;
+        }
+        image = candidate;
+        extension = "png";
         break;
       }
 
@@ -54,18 +79,32 @@ for (const id of ids) {
   }
   if (!image) {
     throw new Error(
-      `Icon download for ${id} did not return WebP after 3 attempts (${invalidResponse}).`,
+      `Icon download for ${id} did not return an image after 3 attempts (${invalidResponse}).`,
     );
   }
-  icons.push([id, image]);
+  icons.push([id, image, extension]);
+}
+
+// Distinct items sharing one image usually means an upstream placeholder.
+{
+  const byHash = new Map();
+  for (const [id, image] of icons) {
+    const hash = createHash("sha256").update(image).digest("hex");
+    byHash.set(hash, [...(byHash.get(hash) ?? []), id]);
+  }
+  for (const [, idsSharing] of byHash)
+    if (idsSharing.length > 1)
+      console.warn(
+        `warning: identical icon bytes for ${idsSharing.join(", ")}; check for upstream placeholder icons`,
+      );
 }
 
 const outputDirectory = "public/item-icons";
 await fs.mkdir(outputDirectory, { recursive: true });
 const itemIcons = {};
-for (const [id, image] of icons) {
+for (const [id, image, extension] of icons) {
   const hash = createHash("sha256").update(image).digest("hex").slice(0, 16);
-  const filename = `${id}.${hash}.webp`;
+  const filename = `${id}.${hash}.${extension}`;
   await fs.writeFile(path.join(outputDirectory, filename), image);
   itemIcons[id] = filename;
 }
