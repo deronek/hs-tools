@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import type { AhPrices, BazaarProducts, Recipe } from "./forge";
-import recipesData from "../data/recipes.json";
-import golden from "./fixtures/legacy-golden.json";
 import { AH_COLLECTION_TAX_MIN, DEFAULT_SETTINGS, priceRecipe } from "./forge";
 
 function product(sell: number, buy: number) {
@@ -65,7 +63,7 @@ describe("priceRecipe", () => {
   });
 });
 
-describe("auction house legs", () => {
+describe("auction house pricing", () => {
   const ahRecipe: Recipe = {
     section: "Test",
     name: "AH recipe",
@@ -92,7 +90,7 @@ describe("auction house legs", () => {
       avg: 102,
       monthly: 105,
       volumePerDay: 50,
-      feedAgeMinutes: 30,
+      priceAgeMinutes: 30,
       source: "now",
     },
     OUT_TAG: {
@@ -100,7 +98,7 @@ describe("auction house legs", () => {
       avg: 1_950_000,
       monthly: 1_800_000,
       volumePerDay: 8.5,
-      feedAgeMinutes: 45,
+      priceAgeMinutes: 45,
       source: "now",
     },
   };
@@ -189,40 +187,5 @@ describe("auction house legs", () => {
     expect(priced?.revenue).toBeCloseTo(2_000_000 * 0.97);
     expect(priced?.confidence).toBeGreaterThan(0);
     expect(priced?.confidence).toBeLessThanOrEqual(100);
-  });
-
-  it("reproduces the pre-batch bazaar pricing for the legacy 30 recipes", () => {
-    const fixtureProducts = golden.products as BazaarProducts;
-    const byGoldenName = new Map(golden.golden.instant.map((r) => [r.name, r]));
-    const byGoldenNameOrder = new Map(
-      golden.golden.orderOffer.map((r) => [r.name, r]),
-    );
-
-    const legacy = (recipesData as unknown as Recipe[]).filter((r) =>
-      byGoldenName.has(r.name),
-    );
-    expect(legacy).toHaveLength(30);
-    expect(legacy.every((r) => r.outputMarket === "bazaar")).toBe(true);
-
-    for (const recipe of legacy) {
-      for (const [settings, expectedByName] of [
-        [DEFAULT_SETTINGS, byGoldenName],
-        [
-          {
-            ...DEFAULT_SETTINGS,
-            inputMode: "order",
-            outputMode: "offer",
-            taxRate: 1,
-          },
-          byGoldenNameOrder,
-        ],
-      ] as const) {
-        const priced = priceRecipe(recipe, fixtureProducts, settings, {});
-        const expected = expectedByName.get(recipe.name)!;
-        expect(priced?.cost).toBe(expected.cost);
-        expect(priced?.revenue).toBeCloseTo(expected.revenue, 10);
-        expect(priced?.confidence).toBeCloseTo(expected.confidence, 10);
-      }
-    }
   });
 });

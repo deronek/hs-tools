@@ -34,7 +34,7 @@ const neededTags = new Set(
   ]),
 );
 
-function feedAgeMinutes(lastUpdated: string | undefined, fetchedAt: number) {
+function priceAgeMinutes(lastUpdated: string | undefined, fetchedAt: number) {
   if (!lastUpdated) return null;
   const stamp = Date.parse(lastUpdated);
   if (!Number.isFinite(stamp)) return null;
@@ -42,10 +42,9 @@ function feedAgeMinutes(lastUpdated: string | undefined, fetchedAt: number) {
 }
 
 /**
- * Maps a `/api/prices/change` payload (plus the `/api/prices/neu` fallback
- * map) into the snapshot used for pricing. Pure so tests can drive it with
- * committed fixtures. Tags without any usable price are left out; pricing
- * treats those legs as unlisted.
+ * Maps a `/api/prices/change` response (plus the `/api/prices/neu` fallback
+ * map) into the price records used for pricing. Tags without any usable price
+ * are left out; pricing treats those items as unpriced.
  */
 export function buildAhSnapshot(
   change: unknown,
@@ -62,14 +61,14 @@ export function buildAhSnapshot(
       gaps.push(tag);
       continue;
     }
-    const age = feedAgeMinutes(entry.lastUpdated, fetchedAt);
+    const age = priceAgeMinutes(entry.lastUpdated, fetchedAt);
     if (entry.now && entry.now > 0) {
       items[tag] = {
         price: entry.now,
         avg: entry.recent ?? null,
         monthly: entry.monthly ?? null,
         volumePerDay: entry.volume ?? null,
-        feedAgeMinutes: age,
+        priceAgeMinutes: age,
         source: "now",
       };
     } else if (entry.recent && entry.recent > 0) {
@@ -78,7 +77,7 @@ export function buildAhSnapshot(
         avg: entry.recent,
         monthly: entry.monthly ?? null,
         volumePerDay: entry.volume ?? null,
-        feedAgeMinutes: age,
+        priceAgeMinutes: age,
         source: "recent",
       };
     } else {
@@ -95,7 +94,7 @@ export function buildAhSnapshot(
           avg: null,
           monthly: null,
           volumePerDay: null,
-          feedAgeMinutes: null,
+          priceAgeMinutes: null,
           source: "neu",
         };
       }
@@ -132,9 +131,9 @@ const getCachedAh = unstable_cache(
 
     const missing = tags.filter((tag) => !snapshot.items[tag]);
     if (missing.length > 0) {
-      // Second line of defense for tags the change feed omits entirely.
-      // Best-effort: losing it degrades those legs to unlisted instead of
-      // failing the page over a secondary source.
+      // Only fetched when the change response is missing tags. If it fails,
+      // those items are treated as unpriced instead of failing the page over
+      // a secondary source.
       try {
         const neu = await NeuSchema.parseAsync(
           await fetchJson(`${BASE_URL}/api/prices/neu`),

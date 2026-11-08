@@ -492,9 +492,9 @@ function ConfidenceInfoPopover() {
           not a guarantee of fill.
         </p>
         <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-          Auction House legs use price stability, 24h sold volume, and feed
-          freshness on the same scale. AH prices are market sale estimates from
-          Coflnet, not order book quotes.
+          Auction House items score on price stability, how much sells per day,
+          and how old the price data is. AH prices are market sale estimates
+          from Coflnet, not order book quotes.
         </p>
       </PopoverContent>
     </Popover>

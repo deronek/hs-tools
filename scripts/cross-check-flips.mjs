@@ -1,12 +1,13 @@
-// Cross-checks this app's AH pricing against Coflnet's own forge flip list
-// (https://sky.coflnet.com/api/flip/forge). Not part of the unit test suite;
-// run after `pnpm data:update`: node scripts/cross-check-flips.mjs
+// Compares this app's Auction House profits against Coflnet's own forge
+// calculator (https://sky.coflnet.com/api/flip/forge). Not part of the unit
+// test suite; run after `pnpm data:update`: node scripts/cross-check-flips.mjs
 //
-// For every flip on a recipe we support, it compares
+// For every recipe both tools price, it compares
 //   our revenue - our cost   vs   craftData.sellPrice - craftData.craftCost
 // using Coflnet's per-ingredient costs for the cost side and our fee model on
-// the change feed's `now` price for the revenue side. It also pins the feed
-// semantics by reporting `recent` vs craftData.median per tag.
+// the change response's `now` price for the revenue side. It also reports
+// `recent` vs craftData.median per item, since our stability score relies on
+// those two staying close.
 import fs from "node:fs";
 
 const readJson = (file) =>
@@ -31,8 +32,8 @@ const byTag = new Map(
     .map((r) => [r.outputTag, r]),
 );
 
-// Refresh the change feed for the tags being compared so both sides of the
-// comparison come from the same minute.
+// Refetch prices for the tags being compared so both sides come from the
+// same minute.
 const tags = [...byTag.keys()];
 const change = { ...committedChange };
 {
@@ -41,8 +42,8 @@ const change = { ...committedChange };
 }
 
 let compared = 0;
-const legProblemRecipes = [];
-const feedDrifts = [];
+const missingPartRecipes = [];
+const priceDrifts = [];
 const costDrifts = [];
 const profitGaps = [];
 for (const flip of flips) {
@@ -58,7 +59,7 @@ for (const flip of flips) {
     (payout >= AH_COLLECTION_TAX_MIN ? AH_COLLECTION_TAX_RATE : 0);
   const ourRevenue = payout * (1 - feeRate);
 
-  const legProblems = [];
+  const missingParts = [];
   let ourCost = 0;
   for (const ingredient of recipe.ingredients) {
     const tag = ingredient.tag ?? ingredient.id;
@@ -66,23 +67,23 @@ for (const flip of flips) {
       (i) => i.itemId === tag,
     );
     if (!flipIngredient) {
-      legProblems.push(`${ingredient.name}: no flip ingredient`);
+      missingParts.push(`${ingredient.name}: no flip ingredient`);
       continue;
     }
     if (flipIngredient.count !== ingredient.qty)
-      legProblems.push(
+      missingParts.push(
         `${ingredient.name}: flip count ${flipIngredient.count} vs recipe qty ${ingredient.qty}`,
       );
     // `cost` is already the total for the ingredient's `count` units.
     ourCost += flipIngredient.cost;
   }
-  if (legProblems.length > 0)
-    legProblemRecipes.push({ recipe: recipe.name, legProblems });
+  if (missingParts.length > 0)
+    missingPartRecipes.push({ recipe: recipe.name, missingParts });
 
   const craft = flip.craftData;
-  const feedDrift = Math.abs(entry.now - craft.sellPrice) / craft.sellPrice;
+  const priceDrift = Math.abs(entry.now - craft.sellPrice) / craft.sellPrice;
   const costDrift = Math.abs(ourCost - craft.craftCost) / craft.craftCost;
-  feedDrifts.push({ name: recipe.name, drift: feedDrift });
+  priceDrifts.push({ name: recipe.name, drift: priceDrift });
   costDrifts.push({ name: recipe.name, drift: costDrift });
   profitGaps.push({
     name: recipe.name,
@@ -111,9 +112,9 @@ console.log(
   `\ncompared ${compared} of ${flips.length} flips against our recipes`,
 );
 console.log(
-  "price-level agreement between our change feed and the flipper's fresh estimates:",
+  "price-level agreement between our change data and the flipper's fresh estimates:",
 );
-summarize("output price: now vs sellPrice", feedDrifts);
+summarize("output price: now vs sellPrice", priceDrifts);
 summarize("cost: per-ingredient sum vs craftCost", costDrifts);
 
 const wideProfit = profitGaps.filter(
@@ -128,33 +129,33 @@ for (const row of wideProfit)
   console.log(
     `  ${row.name}: ours ${Math.round(row.ourProfit)} vs theirs ${Math.round(row.theirProfit)} (gap ${Math.round(row.gap)})`,
   );
-if (legProblemRecipes.length > 0) {
-  console.log(`leg problems: ${legProblemRecipes.length}`);
-  for (const row of legProblemRecipes)
-    console.log(`  ${row.recipe}: ${row.legProblems.join("; ")}`);
+if (missingPartRecipes.length > 0) {
+  console.log(`missing ingredients: ${missingPartRecipes.length}`);
+  for (const row of missingPartRecipes)
+    console.log(`  ${row.recipe}: ${row.missingParts.join("; ")}`);
 }
 
-// Feed-semantics pin: `recent` should track Coflnet's flipper median.
-let pinned = 0;
-const pinDrifts = [];
+// Check that `recent` tracks the median Coflnet's own calculator uses.
+let checked = 0;
+const medianDrifts = [];
 for (const flip of flips) {
   const entry = change[flip.craftData.itemId];
   const median = flip.craftData.median;
   if (!entry?.recent || !median) continue;
-  pinned++;
-  pinDrifts.push({
+  checked++;
+  medianDrifts.push({
     tag: flip.craftData.itemId,
     drift: Math.abs(entry.recent - median) / median,
     recent: entry.recent,
     median,
   });
 }
-pinDrifts.sort((a, b) => b.drift - a.drift);
-const overTwo = pinDrifts.filter((row) => row.drift > 0.02);
+medianDrifts.sort((a, b) => b.drift - a.drift);
+const overTwo = medianDrifts.filter((row) => row.drift > 0.02);
 for (const row of overTwo)
   console.log(
     `recent/median drift ${row.tag}: recent ${row.recent} vs median ${row.median} (${(row.drift * 100).toFixed(1)}%)`,
   );
 console.log(
-  `recent ≈ craftData.median within 2% on ${pinned - overTwo.length} of ${pinned} sampled tags; worst ${pinDrifts.length > 0 ? (pinDrifts[0].drift * 100).toFixed(1) : "0"}%`,
+  `recent ≈ craftData.median within 2% on ${checked - overTwo.length} of ${checked} sampled tags; worst ${medianDrifts.length > 0 ? (medianDrifts[0].drift * 100).toFixed(1) : "0"}%`,
 );

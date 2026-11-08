@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import prettier from "prettier";
 
-import { createLegClassifier } from "./lib/leg-market.mjs";
+import { createPartClassifier } from "./lib/recipe-parts.mjs";
 
 const root = process.cwd();
 const readJson = (file) =>
@@ -50,7 +50,7 @@ const isAuctionFlagged = (tag) =>
 const hasLiveMarket = (tag) =>
   isAuctionFlagged(tag) && (change[tag]?.now > 0 || change[tag]?.recent > 0);
 
-const { classifyLeg, marketReason } = createLegClassifier({
+const { classifyPart, unpricedReason } = createPartClassifier({
   products,
   ahNames,
   isAuctionFlagged,
@@ -60,7 +60,7 @@ const { classifyLeg, marketReason } = createLegClassifier({
 const recipes = raw.map((recipe) => {
   const reasons = [];
 
-  const outputLeg = { name: recipe.name, id: recipe.outputId };
+  const outputPart = { name: recipe.name, id: recipe.outputId };
   let outputMarket = null;
   let outputTag;
   if (!recipe.outputId) {
@@ -68,23 +68,23 @@ const recipes = raw.map((recipe) => {
       "Output has no Hypixel item ID, so it cannot be matched to a priced market.",
     );
   } else {
-    const classified = classifyLeg(outputLeg);
+    const classified = classifyPart(outputPart);
     if (classified) {
       outputMarket = classified.market;
       outputTag = classified.tag;
     } else {
-      reasons.push(marketReason(outputLeg, "output"));
+      reasons.push(unpricedReason(outputPart, "output"));
     }
   }
 
-  const legs = recipe.ingredients.map((ingredient) => {
+  const parts = recipe.ingredients.map((ingredient) => {
     if (ingredient.name === "Coins") {
       reasons.push("Requires a direct coin payment.");
       return { ...ingredient, market: null, tag: undefined };
     }
-    const classified = classifyLeg(ingredient);
+    const classified = classifyPart(ingredient);
     if (!classified) {
-      reasons.push(marketReason(ingredient, "input"));
+      reasons.push(unpricedReason(ingredient, "input"));
       return { ...ingredient, market: null, tag: undefined };
     }
     return { ...ingredient, ...classified };
@@ -104,7 +104,7 @@ const recipes = raw.map((recipe) => {
     hotm: recipe.hotm,
     outputMarket,
     outputTag,
-    ingredients: legs.map(({ name, qty, id, market, tag }) => ({
+    ingredients: parts.map(({ name, qty, id, market, tag }) => ({
       name,
       qty,
       id,
@@ -114,7 +114,7 @@ const recipes = raw.map((recipe) => {
     isSupported: unique.length === 0,
     reason: unique.length
       ? unique.join(" ")
-      : outputMarket === "auction" || legs.some((l) => l.market === "auction")
+      : outputMarket === "auction" || parts.some((l) => l.market === "auction")
         ? "Prices from the Auction House."
         : "Direct bazaar inputs and bazaar output.",
   };
@@ -140,7 +140,7 @@ const appRecipes = recipes
     })),
   }));
 
-// Every supported auction leg must carry its tag into the snapshot.
+// Every supported auction part must carry its tag into the snapshot.
 for (const recipe of appRecipes) {
   if (recipe.outputMarket === "auction" && !recipe.outputTag)
     throw new Error(`Auction output without tag: ${recipe.name}`);
@@ -148,7 +148,7 @@ for (const recipe of appRecipes) {
     if (ingredient.market === "auction" && !ingredient.tag)
       throw new Error(`Auction ingredient without tag: ${recipe.name}`);
     if (!["bazaar", "auction"].includes(ingredient.market))
-      throw new Error(`Unclassified leg in supported recipe: ${recipe.name}`);
+      throw new Error(`Unclassified part in supported recipe: ${recipe.name}`);
   }
 }
 

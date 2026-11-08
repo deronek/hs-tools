@@ -21,7 +21,7 @@ describe("recipe data", () => {
     expect(appRecipes.every((recipe) => !("isSimple" in recipe))).toBe(true);
   });
 
-  it("labels every recipe and leg with its market", () => {
+  it("labels every recipe and ingredient with its market", () => {
     expect(
       appRecipes.every(
         (recipe) =>

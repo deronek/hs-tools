@@ -22,14 +22,14 @@ export type BazaarProduct = {
 
 export type BazaarProducts = Record<string, BazaarProduct>;
 
-export type LegMarket = "bazaar" | "auction";
+export type Market = "bazaar" | "auction";
 
 export type RecipeIngredient = {
   name: string;
   qty: number;
   id: string | null;
-  market: LegMarket;
-  /** Coflnet tag, present on auction legs. */
+  market: Market;
+  /** Coflnet tag, present on auction ingredients. */
   tag?: string;
 };
 
@@ -40,7 +40,7 @@ export type Recipe = {
   outputQty: number;
   durationSeconds: number;
   hotm: string;
-  outputMarket: LegMarket;
+  outputMarket: Market;
   /** Coflnet tag for auction outputs. */
   outputTag?: string;
   ingredients: RecipeIngredient[];
@@ -72,17 +72,17 @@ export const AH_CREATION_FEE_RATE = 0.02;
 export const AH_COLLECTION_TAX_RATE = 0.01;
 export const AH_COLLECTION_TAX_MIN = 1_000_000;
 
-/** One AH price from the Coflnet feed, keyed by Coflnet tag. */
+/** One Auction House price from Coflnet, keyed by Coflnet tag. */
 export type AhPrice = {
   /** Current market sale price; `recent` or NEU average when `now` is missing. */
   price: number;
-  /** Recent-window typical price, for the stability term. */
+  /** Recent-window typical price, used for the stability score. */
   avg: number | null;
   monthly: number | null;
   /** Average units sold per day. */
   volumePerDay: number | null;
-  /** Age of the feed stamp; null when unknown. */
-  feedAgeMinutes: number | null;
+  /** Age of the price data in minutes; null when unknown. */
+  priceAgeMinutes: number | null;
   source: "now" | "recent" | "neu";
 };
 
@@ -95,7 +95,7 @@ export type IngredientPrice = {
   unit: number;
   cost: number;
   depth: number;
-  market: LegMarket;
+  market: Market;
   tag?: string;
 };
 
@@ -236,20 +236,20 @@ function bazaarSpread(product: BazaarProduct) {
 }
 
 /**
- * AH price stability: how far the current price sits from the recent-window
- * typical price, saturating the same way the Bazaar spread curve does (10%
- * relative drift scores 0).
+ * Price stability: how far the current price sits from the recent-window
+ * typical price, saturating like the Bazaar spread curve (10% relative drift
+ * scores 0).
  */
-function ahSteadiness(price: AhPrice) {
+function ahStability(price: AhPrice) {
   if (price.avg == null || price.avg <= 0) return 0;
   const drift = Math.abs(price.price - price.avg) / price.avg;
   return 1 - clamp(drift / 0.1, 0, 1);
 }
 
-/** AH feed freshness from the per-tag `lastUpdated` stamp (6 h half-life-ish decay). */
-function ahFreshness(price: AhPrice) {
-  if (price.feedAgeMinutes == null) return 0;
-  return Math.exp(-price.feedAgeMinutes / 60 / 6);
+/** Score from the age of the price data; six hours old scores about 37%. */
+function priceAgeScore(price: AhPrice) {
+  if (price.priceAgeMinutes == null) return 0;
+  return Math.exp(-price.priceAgeMinutes / 60 / 6);
 }
 
 /** AH fees applied to a sale payout. */
@@ -266,8 +266,8 @@ export function priceRecipe(
   settings: PricingSettings,
   ahPrices: AhPrices = {},
 ): PricedRecipe | null {
-  // Same null-before-throw ordering as the pre-batch build: a missing output
-  // product drops the row before ingredient pricing can throw.
+  // A missing output product drops the row before ingredient pricing can
+  // throw, so an unlisted output never becomes an error.
   if (recipe.outputMarket === "bazaar" && !products[recipe.outputId])
     return null;
 
@@ -282,20 +282,20 @@ export function priceRecipe(
   for (const ingredient of recipe.ingredients) {
     if (ingredient.market === "auction") {
       const entry = ingredient.tag ? ahPrices[ingredient.tag] : undefined;
-      // An AH leg without feed data cannot be priced honestly, so the
-      // recipe is dropped rather than treating the leg as free.
+      // An Auction House ingredient with no price data can't be priced
+      // honestly, so the recipe is dropped rather than treating it as free.
       if (!entry) return null;
       const daily = (entry.volumePerDay ?? 0) / Math.max(1, ingredient.qty);
-      depths.push(ahSteadiness(entry));
+      depths.push(ahStability(entry));
       dailies.push(daily);
-      freshnesses.push(ahFreshness(entry));
+      freshnesses.push(priceAgeScore(entry));
       const ingredientPrice: IngredientPrice = {
         id: ingredient.id,
         name: ingredient.name,
         qty: ingredient.qty,
         unit: entry.price,
         cost: entry.price * ingredient.qty,
-        depth: ahSteadiness(entry),
+        depth: ahStability(entry),
         market: "auction",
         tag: ingredient.tag,
       };
@@ -328,9 +328,9 @@ export function priceRecipe(
     if (entry) {
       const payout = entry.price * recipe.outputQty;
       revenue = payout * (1 - ahFeeRate(payout));
-      depths.push(ahSteadiness(entry));
+      depths.push(ahStability(entry));
       dailies.push((entry.volumePerDay ?? 0) / Math.max(1, recipe.outputQty));
-      freshnesses.push(ahFreshness(entry));
+      freshnesses.push(priceAgeScore(entry));
     } else {
       // Unlisted AH output: it cannot be sold, so the row stays with zero
       // revenue and zero confidence instead of disappearing silently.
@@ -362,8 +362,8 @@ export function priceRecipe(
   const depth = Math.min(...depths);
   const volume = clamp(Math.min(...dailies) / 10, 0, 1);
 
-  // The Bazaar side keeps its aggregate spread curve; AH legs contribute feed
-  // freshness on the same 0..1 scale, and the spread slot averages them all.
+  // Bazaar items score on bid/ask spread, Auction House items on the age of
+  // their price data. Both become 0..1 scores and this slot averages them.
   const spreadParts: number[] = [];
   if (bazaarSpreads.length > 0) {
     const average =
