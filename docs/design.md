@@ -141,7 +141,7 @@ The UI renders confidence as a plain percentage. A small info popover beside the
 
 `src/lib/ah.ts` fetches all Auction House prices in one `GET /api/prices/change?itemTags=<all tags>` request per hourly refresh, plus `GET /api/prices/neu` (a ~85 KB average-price map) only when items are missing from the change response. There is no per-item loop and no scheduled job.
 
-`unstable_cache` uses the key `["coflnet-forge", <sorted tags>]` and `revalidate: 3_600`, matching the Bazaar cadence so both sources age together. The fetch itself uses `cache: "no-store"` so the cache wrapper owns caching. AH tags never enter the Bazaar cache key, so Bazaar cache entries do not invalidate when the AH item list grows.
+`unstable_cache` uses the key `["coflnet-forge", <sorted tags>]` and `revalidate: 3_600`, matching the Bazaar cadence so both sources age together. The fetch itself uses `cache: "no-store"` so the cache wrapper owns caching. `src/app/forge/page.tsx` also sets `revalidate = 3_600`, so a price can be up to roughly two hours old, the same worst case as the Bazaar path. AH tags never enter the Bazaar cache key, so Bazaar cache entries do not invalidate when the AH item list grows.
 
 Rate limits are per IP: 30 requests / 10 s and 100 requests / 1 min ([Coflnet API wiki](https://sky.coflnet.com/wiki/api)). Steady state is two requests per hour, and a 429 response retries with a short wait. The data:update catalog call adds one request per deploy.
 
@@ -151,7 +151,7 @@ The Bazaar has no offline fallback: a failed bazaar request fails the page. A fa
 
 ## Checking against Coflnet's calculator
 
-`node scripts/cross-check-flips.mjs` (manual, networked) compares this app's pricing against Coflnet's own forge calculator (`/api/flip/forge`): per-recipe output price (`now` vs their `sellPrice`), cost (per-ingredient sum vs their `craftCost`), and profit. It also prints `recent` vs their `craftData.median` per item, since the confidence stability score relies on those two staying close. In the November 2026 check the two sources agreed to a median of 4.3% on output prices and 2.9% on costs; the gaps widen on fast-moving items because the two are read at different times, and this script surfaces that drift instead of hiding it.
+`node scripts/cross-check-flips.mjs` (manual, networked) compares this app's pricing against Coflnet's own forge calculator (`/api/flip/forge`): per-recipe output price (`now` vs their `sellPrice`), cost (per-ingredient sum vs their `craftCost`), and profit. It also prints `recent` vs their `craftData.median` per item, since the confidence stability score relies on those two staying close. In the November 2026 check the two sources agreed to a median of 4.3% on output prices and 2.9% on costs; the gaps widen on fast-moving items because the two are read at different times, and this script surfaces that drift instead of hiding it. Runs are noisy: the same check put 27 of 62 recipes outside the wide-profit band, with the largest gaps on fast movers such as Pendant of Divan. That is AH volatility plus sampling-time drift, not a regression, and the confidence score is meant to surface it; do not expect every run to reproduce the medians above.
 
 ## Bazaar cache
 
@@ -176,7 +176,7 @@ Unit tests cover the AH fee branches, the unpriced-output and unpriced-ingredien
 ## Limitations
 
 - Direct coin costs are recorded but not priced, which keeps four recipes (Divan's Drill, Gemstone Chamber, both Dwarven travel scrolls) out of the snapshot.
-- Pets have no Hypixel item ID; their Coflnet tags exist and live in `ah-names.json`, but identity work (icons, the pet price-scale quirk) is a follow-up batch.
+- Pets have no Hypixel item ID; their Coflnet tags exist and live in `ah-names.json`, but identity work (icons, the pet price-scale quirk) is a follow-up batch. Their recipes, plus Bejeweled Collar, exit at the no-item-ID check before `ah-names.json` is consulted, so those mappings are inert until that work lands.
 - Perfect Gemstones, Relic of Power, and Secret Railroad Pass have an ingredient or output with no market and cannot be priced honestly.
 - AH prices are Coflnet estimates, not order-book quotes; on fast-moving items they can trail the market until the next refresh, and the confidence score's price-age term reflects that.
 - The 2% BIN creation fee is a constant; the wiki brackets it at 2-5% by type and price bracket, and Derpy's tax window is unmodeled.

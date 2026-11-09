@@ -132,10 +132,17 @@ if (!covered()) {
     path: CHANGE_PATH,
     url: `https://sky.coflnet.com/api/prices/change?itemTags=${neededTags.join(",")}`,
     // Coflnet omits tags it has no data for, so an incomplete payload is
-    // expected; classification treats absent tags as unpriced.
+    // expected; classification treats absent tags as unpriced. An entirely
+    // empty object is different: it would drop every AH row from the
+    // snapshot until the next update, so treat it as a failed download.
     validate: (content) => {
       const change = JSON.parse(content);
-      return change && typeof change === "object" && !Array.isArray(change);
+      return (
+        change &&
+        typeof change === "object" &&
+        !Array.isArray(change) &&
+        Object.keys(change).length > 0
+      );
     },
   });
 }

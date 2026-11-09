@@ -1,6 +1,8 @@
 // Compares this app's Auction House profits against Coflnet's own forge
 // calculator (https://sky.coflnet.com/api/flip/forge). Not part of the unit
 // test suite; run after `pnpm data:update`: node scripts/cross-check-flips.mjs
+// Requires Node 22.18+/24+ for built-in TypeScript type stripping, since it
+// imports src/lib/forge.ts directly; older Node fails on the .ts import.
 //
 // For every recipe both tools price, it compares
 //   our revenue - our cost   vs   craftData.sellPrice - craftData.craftCost
