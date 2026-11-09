@@ -82,6 +82,8 @@ Two sources price the calculator's rows:
 - **Bazaar items** use `https://api.hypixel.net/v2/skyblock/bazaar`. No API key is needed. The Bazaar pricing rules (order books, input/output modes, tax) are unchanged from the bazaar-only build.
 - **Auction House items** use Coflnet's price API (`https://sky.coflnet.com/api/prices/change`, free and keyless). AH items have no order book here: buying is a buy-now at the current market sale price.
 
+Coflnet is the second source because Hypixel publishes no per-item price endpoint for the Auction House. The Bazaar alone covers 30 recipes; the 62 Auction House recipes take the app to 92 of 119. Two alternatives were rejected when this was built: the official Auction House API works but needs about 96 MB across 42 paginated calls per refresh, and Moulberry's `lowest_bin.json` was returning HTTP 525. The official Auction House crawl is the documented fallback if Coflnet's terms or availability change; it is not shipped.
+
 The order arrays are not sorted, so the calculator does not trust their order.
 
 Input modes:
@@ -101,7 +103,7 @@ Revenue is gross output value minus market-specific fees:
 - Bazaar output: gross minus the bazaar tax. All bazaar sales carry a 1.25% tax, and the Bazaar Flipper community upgrade reduces it by 0.125% per level up to -0.25%, making the tax 1%. The settings select offers exactly the values that can occur in game: 1.25% (no perk), 1.125% (Bazaar Flipper 1), and 1% (Bazaar Flipper 2). The default is 1.25%.
 - Auction House output: `now × qty` minus a BIN creation fee of 2% and, when the payout reaches 1,000,000 coins, the 1% collection tax ([Auction House → Fees and Taxes](https://hypixelskyblock.minecraft.wiki/w/Auction_House)). Both rates are constants (`AH_CREATION_FEE_RATE`, `AH_COLLECTION_TAX_RATE` in `src/lib/forge.ts`); the wiki brackets the creation fee at 2-5% by type and price bracket, and 2% is the common BIN case. Derpy's doubled-tax mayor window is not modeled.
 
-The AH price shown per row is Coflnet's `now` field: the current market sale price estimate, not a lowest-BIN quote. A lone floor listing is a fragile anchor and would put per-item listing calls on the render path. Each AH item links to `https://sky.coflnet.com/item/{tag}` so a user can audit where the number came from. When `now` is missing, the item prices from `recent` (the recent-window typical price); an item with neither value is treated as unpriced.
+The AH price shown per row is Coflnet's `now` field: the current market sale price estimate, not a lowest-BIN quote. A lone floor listing is a fragile anchor and would put per-item listing calls on the render path. Each AH item links to `https://sky.coflnet.com/item/{tag}` so a user can audit where the number came from. When `now` is missing, the item prices from `recent` (the recent-window typical price); an item with neither value is treated as unpriced. Per-item listing depth from Coflnet's `/analysis/live` could sharpen the confidence score later, but only behind a lazy cache, never on the render path.
 
 Forge time uses the recipe duration and the selected time reduction. Percentage reductions stack additively. The in-game sources (Hypixel SkyBlock wiki, The Forge → Mechanics):
 
