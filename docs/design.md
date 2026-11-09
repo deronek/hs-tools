@@ -24,7 +24,7 @@ Refresh the committed item icons separately when needed:
 pnpm icons:update
 ```
 
-The icon updater requests WebP images for item IDs in `src/data/recipes.json`, writes content-hashed WebP files to `public/item-icons`, and updates `src/data/item-icons.json`. Review and commit the generated files with recipe changes.
+The icon updater downloads images for item IDs in `src/data/recipes.json` from SkyCrypt, falls back to Coflnet's icon endpoint when SkyCrypt serves a PNG placeholder, writes content-hashed WebP or PNG files to `public/item-icons`, and updates `src/data/item-icons.json`. Review and commit the generated files with recipe changes.
 
 Vercel serves these static files from its edge cache. `next.config.ts` gives hashed icon URLs a one-year immutable TTL; changing an icon changes its URL.
 
@@ -34,9 +34,9 @@ Vercel serves these static files from its edge cache. `next.config.ts` gives has
 - `data/raw/items.json`: fetched from the [SkyBlock items endpoint](https://api.hypixel.net/v2/resources/skyblock/items). Contains item names and IDs.
 - `data/raw/bazaar-sample.json`: fetched from the [SkyBlock Bazaar endpoint](https://api.hypixel.net/v2/skyblock/bazaar). Its products determine which recipe items are Bazaar-tradeable.
 - `data/raw/coflnet-items.json`: fetched from Coflnet's [item catalog](https://sky.coflnet.com/api/items). Its per-item `flags` (`BAZAAR`, `AUCTION`, …) identify Auction House items.
-- `data/raw/coflnet-change.json`: fetched from Coflnet's [price change endpoint](https://sky.coflnet.com/api/prices/change) for every tag in `src/data/ah-names.json`. Its live prices decide whether an Auction House item actually has a market right now.
+- `data/raw/coflnet-change.json`: fetched from Coflnet's [price change endpoint](https://sky.coflnet.com/api/prices/change) for every Auction House tag the recipes can price: the reviewed `src/data/ah-names.json` mappings plus every recipe part the catalog flags `AUCTION`, mapped or not. Its live prices decide whether an Auction House item actually has a market right now, and they make the unmapped-item check below able to fire.
 
-The script downloads each file only if it is missing. Remove a file to refresh it. Git ignores all five.
+The script downloads each file only if it is missing, and re-fetches the change file whenever the recipes need tags it does not cover. Remove a file to refresh it. Git ignores all five.
 
 **Choosing the market for each ingredient and output**
 
@@ -101,7 +101,7 @@ Revenue is gross output value minus market-specific fees:
 - Bazaar output: gross minus the bazaar tax. All bazaar sales carry a 1.25% tax, and the Bazaar Flipper community upgrade reduces it by 0.125% per level up to -0.25%, making the tax 1%. The settings select offers exactly the values that can occur in game: 1.25% (no perk), 1.125% (Bazaar Flipper 1), and 1% (Bazaar Flipper 2). The default is 1.25%.
 - Auction House output: `now × qty` minus a BIN creation fee of 2% and, when the payout reaches 1,000,000 coins, the 1% collection tax ([Auction House → Fees and Taxes](https://hypixelskyblock.minecraft.wiki/w/Auction_House)). Both rates are constants (`AH_CREATION_FEE_RATE`, `AH_COLLECTION_TAX_RATE` in `src/lib/forge.ts`); the wiki brackets the creation fee at 2-5% by type and price bracket, and 2% is the common BIN case. Derpy's doubled-tax mayor window is not modeled.
 
-The AH price shown per row is Coflnet's `now` field: the current market sale price estimate, not a lowest-BIN quote. A lone floor listing is a fragile anchor and would put per-item listing calls on the render path. Each AH item links to `https://sky.coflnet.com/item/{tag}` so a user can audit where the number came from. When `now` is missing, the item prices from `recent` (the recent-window typical price) and is marked as using the fallback; an item with neither value is treated as unpriced.
+The AH price shown per row is Coflnet's `now` field: the current market sale price estimate, not a lowest-BIN quote. A lone floor listing is a fragile anchor and would put per-item listing calls on the render path. Each AH item links to `https://sky.coflnet.com/item/{tag}` so a user can audit where the number came from. When `now` is missing, the item prices from `recent` (the recent-window typical price); an item with neither value is treated as unpriced.
 
 Forge time uses the recipe duration and the selected time reduction. Percentage reductions stack additively. The in-game sources (Hypixel SkyBlock wiki, The Forge → Mechanics):
 
@@ -113,7 +113,7 @@ Forge time uses the recipe duration and the selected time reduction. Percentage 
 
 The UI slider therefore runs 0 to 55% (Quick Forge 30% + Cole's Molten Forge 25%) in 0.5% steps matching Quick Forge's granularity. The default stays 0 so nothing about the player's perks is assumed. Profit per hour uses the reduced duration, with a one-second floor to avoid division by zero. Pricing clamps the reduction at 60%, above the achievable maximum.
 
-If an order book cannot fill the requested quantity, the remaining units use the last order price and the depth score falls below 1. The UI shows that risk through confidence, not a separate warning.
+If an order book cannot fill the requested quantity, the remaining units use the last order price and the depth score falls below 1. An empty order book cannot price the part at all: the recipe is dropped instead of being priced as free. The UI shows fill risk through confidence, not a separate warning.
 
 ## Confidence
 
@@ -133,7 +133,7 @@ Auction House items score on the same three parts so mixed-market rows stay on o
 - The 0.35 volume slot uses Coflnet's 24-hour sold volume, the same daily-unit curve (`min(daily) / 10`) the Bazaar side gets from `sellMovingWeek / 7`.
 - The 0.25 spread slot uses the age of the price data: `exp(-hoursOld / 6)` from the per-item `lastUpdated` stamp. A stale price and a wide Bazaar spread mean the same thing: this may not be the price you actually get. A NEU-fallback price has no timestamp, so it scores 0 here.
 
-Depth and volume still take the minimum across all ingredients and the output; the spread slot averages the Bazaar spread score (one term over its items) with each AH item's price-age score. An unpriced AH output renders with zero revenue and confidence 0; an unpriced AH ingredient hides the recipe rather than pricing the item as free.
+Depth and volume still take the minimum across all ingredients and the output; the spread slot averages the Bazaar spread score (one term over its items) with each AH item's price-age score. An unpriced AH output renders with no revenue, profit, or profit-per-hour value and confidence 0; an unpriced AH ingredient hides the recipe rather than pricing the item as free.
 
 The UI renders confidence as a plain percentage. A small info popover beside the column header explains the score and states that it is not a fill guarantee.
 
@@ -147,7 +147,7 @@ Rate limits are per IP: 30 requests / 10 s and 100 requests / 1 min ([Coflnet AP
 
 Attribution, per Coflnet's rules: the app footer links to `https://sky.coflnet.com/data` ("AH prices provided by SkyCofl") on every page, and each AH item links to `https://sky.coflnet.com/item/{tag}` where the item's name is displayed. HS Tools is free and non-commercial, so no Premium+ subscription is required.
 
-The app has no offline fallback. A failed change-request fails the page; the NEU fallback is best-effort and losing it only marks the affected items as unpriced.
+The Bazaar has no offline fallback: a failed bazaar request fails the page. A failed Coflnet request empties the AH snapshot: AH rows drop out and the page shows an availability note. The NEU fallback is best-effort and losing it only marks the affected items as unpriced.
 
 ## Checking against Coflnet's calculator
 
@@ -157,7 +157,7 @@ The app has no offline fallback. A failed change-request fails the page; the NEU
 
 The full bazaar response is about 4.7 MB. `src/lib/bazaar.ts` filters the response to the product IDs used by Bazaar-priced ingredients and outputs before caching it.
 
-`unstable_cache` uses the key `["bazaar-recipes", <sorted product IDs>]` and `revalidate: 3_600`. The fetch itself uses `cache: "no-store"` so the cache wrapper owns caching. `src/app/page.tsx` also sets `revalidate = 3_600`. The key includes the Bazaar-priced item IDs of the supported recipes, so changing that set invalidates old cached data; AH tags deliberately never enter this key.
+`unstable_cache` uses the key `["bazaar-recipes", <sorted product IDs>]` and `revalidate: 3_600`. The fetch itself uses `cache: "no-store"` so the cache wrapper owns caching. `src/app/forge/page.tsx` also sets `revalidate = 3_600`. The key includes the Bazaar-priced item IDs of the supported recipes, so changing that set invalidates old cached data; AH tags deliberately never enter this key.
 
 The app has no offline fallback. A failed bazaar request fails the page.
 
@@ -180,6 +180,6 @@ Unit tests cover the AH fee branches, the unpriced-output and unpriced-ingredien
 - Perfect Gemstones, Relic of Power, and Secret Railroad Pass have an ingredient or output with no market and cannot be priced honestly.
 - AH prices are Coflnet estimates, not order-book quotes; on fast-moving items they can trail the market until the next refresh, and the confidence score's price-age term reflects that.
 - The 2% BIN creation fee is a constant; the wiki brackets it at 2-5% by type and price bracket, and Derpy's tax window is unmodeled.
-- Item icons are copied from SkyCrypt during manual updates. If SkyCrypt changes or drops an item ID, rerun `pnpm icons:update`; the recipe row still works if an icon file is missing.
+- Item icons are fetched from SkyCrypt, with Coflnet as a fallback, during manual updates. If an upstream icon changes or an item ID is dropped, rerun `pnpm icons:update`; the recipe row still works if an icon file is missing.
 - There is no historical price chart, no auction history, and no saved user settings.
 - There is no theme toggle; only dark mode is supported.

@@ -1,40 +1,30 @@
 import { unstable_cache } from "next/cache";
 import { z } from "zod";
 
-import type { AhPrices, Recipe } from "./forge";
+import type { AhPrices, AhSnapshot, Recipe } from "./forge";
 import recipes from "../data/recipes.json";
+import { collectMarketNeeds } from "./forge";
 
 const BASE_URL = "https://sky.coflnet.com";
 
 const ChangeEntrySchema = z.object({
-  now: z.number().optional(),
-  recent: z.number().optional(),
-  monthly: z.number().optional(),
-  volume: z.number().optional(),
-  lastUpdated: z.string().optional(),
+  now: z.number().nullish(),
+  recent: z.number().nullish(),
+  volume: z.number().nullish(),
+  lastUpdated: z.string().nullish(),
 });
 
 const ChangeResponseSchema = z.record(z.string(), ChangeEntrySchema);
 
 const NeuSchema = z.record(z.string(), z.number());
 
-export type AhSnapshot = {
-  fetchedAt: number;
-  items: AhPrices;
-};
+const { auctionTags } = collectMarketNeeds(recipes as Recipe[]);
+const neededTags = new Set(auctionTags);
 
-const neededTags = new Set(
-  (recipes as Recipe[]).flatMap((recipe) => [
-    ...(recipe.outputMarket === "auction" && recipe.outputTag
-      ? [recipe.outputTag]
-      : []),
-    ...recipe.ingredients.flatMap((ingredient) =>
-      ingredient.market === "auction" && ingredient.tag ? [ingredient.tag] : [],
-    ),
-  ]),
-);
-
-function priceAgeMinutes(lastUpdated: string | undefined, fetchedAt: number) {
+function priceAgeMinutes(
+  lastUpdated: string | null | undefined,
+  fetchedAt: number,
+) {
   if (!lastUpdated) return null;
   const stamp = Date.parse(lastUpdated);
   if (!Number.isFinite(stamp)) return null;
@@ -49,13 +39,14 @@ function priceAgeMinutes(lastUpdated: string | undefined, fetchedAt: number) {
 export function buildAhSnapshot(
   change: unknown,
   neu: Record<string, number> | null,
+  tags: Iterable<string>,
   fetchedAt: number,
 ): AhSnapshot {
   const parsed = ChangeResponseSchema.parse(change ?? {});
   const items: AhPrices = {};
   const gaps: string[] = [];
 
-  for (const tag of neededTags) {
+  for (const tag of tags) {
     const entry = parsed[tag];
     if (!entry) {
       gaps.push(tag);
@@ -66,19 +57,15 @@ export function buildAhSnapshot(
       items[tag] = {
         price: entry.now,
         avg: entry.recent ?? null,
-        monthly: entry.monthly ?? null,
         volumePerDay: entry.volume ?? null,
         priceAgeMinutes: age,
-        source: "now",
       };
     } else if (entry.recent && entry.recent > 0) {
       items[tag] = {
         price: entry.recent,
         avg: entry.recent,
-        monthly: entry.monthly ?? null,
         volumePerDay: entry.volume ?? null,
         priceAgeMinutes: age,
-        source: "recent",
       };
     } else {
       gaps.push(tag);
@@ -92,10 +79,8 @@ export function buildAhSnapshot(
         items[tag] = {
           price,
           avg: null,
-          monthly: null,
           volumePerDay: null,
           priceAgeMinutes: null,
-          source: "neu",
         };
       }
     }
@@ -106,7 +91,10 @@ export function buildAhSnapshot(
 
 async function fetchJson(url: string): Promise<unknown> {
   for (let attempt = 0; ; attempt++) {
-    const response = await fetch(url, { cache: "no-store" });
+    const response = await fetch(url, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(60_000),
+    });
     if (response.ok) return response.json();
     if (response.status === 429 && attempt < 2) {
       await new Promise((resolve) =>
@@ -127,7 +115,7 @@ const getCachedAh = unstable_cache(
       `${BASE_URL}/api/prices/change?itemTags=${tags.join(",")}`,
     );
     const fetchedAt = Date.now();
-    const snapshot = buildAhSnapshot(change, null, fetchedAt);
+    const snapshot = buildAhSnapshot(change, null, neededTags, fetchedAt);
 
     const missing = tags.filter((tag) => !snapshot.items[tag]);
     if (missing.length > 0) {
@@ -138,7 +126,7 @@ const getCachedAh = unstable_cache(
         const neu = await NeuSchema.parseAsync(
           await fetchJson(`${BASE_URL}/api/prices/neu`),
         );
-        return buildAhSnapshot(change, neu, fetchedAt);
+        return buildAhSnapshot(change, neu, neededTags, fetchedAt);
       } catch {
         return snapshot;
       }

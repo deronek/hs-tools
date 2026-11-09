@@ -1,6 +1,8 @@
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 
+import { neededChangeTags } from "./lib/recipe-parts.mjs";
+
 const sources = [
   {
     path: "data/raw/wiki-table.html",
@@ -45,27 +47,11 @@ const sources = [
   },
 ];
 
-// The change payload covers every tag in the reviewed AH mapping, so the
-// classification report can check live markets, not just catalog flags.
-const ahNames = JSON.parse(fs.readFileSync("src/data/ah-names.json", "utf8"));
-const ahTags = [...new Set(Object.values(ahNames))].sort();
-sources.push({
-  path: "data/raw/coflnet-change.json",
-  url: `https://sky.coflnet.com/api/prices/change?itemTags=${ahTags.join(",")}`,
-  validate: (content) => {
-    const change = JSON.parse(content);
-    return change && typeof change === "object" && !Array.isArray(change);
-  },
-});
+const CHANGE_PATH = "data/raw/coflnet-change.json";
 
 fs.mkdirSync("data/raw", { recursive: true });
 
-for (const source of sources) {
-  if (fs.existsSync(source.path)) {
-    console.log(`Using ${source.path}`);
-    continue;
-  }
-
+async function download(source) {
   console.log(`Downloading ${source.url} to ${source.path}`);
   const response = await fetch(source.url, {
     signal: AbortSignal.timeout(60_000),
@@ -86,10 +72,72 @@ for (const source of sources) {
   fs.writeFileSync(source.path, content);
 }
 
-for (const script of ["parse-wiki.mjs", "build-data.mjs"]) {
+function runScript(script) {
   const result = spawnSync(process.execPath, [`scripts/${script}`], {
     stdio: "inherit",
   });
   if (result.error) throw result.error;
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
+
+function collectChangeTags() {
+  const recipes = JSON.parse(
+    fs.readFileSync("data/raw/recipes-raw.json", "utf8"),
+  );
+  const ahNames = JSON.parse(fs.readFileSync("src/data/ah-names.json", "utf8"));
+  const catalog = JSON.parse(
+    fs
+      .readFileSync("data/raw/coflnet-items.json", "utf8")
+      .replace(/^\uFEFF/, ""),
+  );
+  const auctionFlags = new Set(
+    catalog
+      .filter((item) =>
+        String(item.flags ?? "")
+          .split(",")
+          .map((flag) => flag.trim())
+          .includes("AUCTION"),
+      )
+      .map((item) => item.tag),
+  );
+  return neededChangeTags(recipes, ahNames, auctionFlags);
+}
+
+for (const source of sources) {
+  if (fs.existsSync(source.path)) {
+    console.log(`Using ${source.path}`);
+    continue;
+  }
+  await download(source);
+}
+
+// Parse before fetching change data so the payload covers every
+// AUCTION-flagged recipe part, mapped or not. Scoped to the reviewed
+// mappings alone, build-data's unmapped-item guard can never fire, and a
+// newly added mapping stays unpriced until the raw file is deleted.
+runScript("parse-wiki.mjs");
+
+const neededTags = collectChangeTags();
+const covered = () => {
+  try {
+    const change = JSON.parse(fs.readFileSync(CHANGE_PATH, "utf8"));
+    return neededTags.every((tag) => change[tag] != null);
+  } catch {
+    return false;
+  }
+};
+
+if (!covered()) {
+  await download({
+    path: CHANGE_PATH,
+    url: `https://sky.coflnet.com/api/prices/change?itemTags=${neededTags.join(",")}`,
+    // Coflnet omits tags it has no data for, so an incomplete payload is
+    // expected; classification treats absent tags as unpriced.
+    validate: (content) => {
+      const change = JSON.parse(content);
+      return change && typeof change === "object" && !Array.isArray(change);
+    },
+  });
+}
+
+runScript("build-data.mjs");

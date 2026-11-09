@@ -78,15 +78,18 @@ export type AhPrice = {
   price: number;
   /** Recent-window typical price, used for the stability score. */
   avg: number | null;
-  monthly: number | null;
   /** Average units sold per day. */
   volumePerDay: number | null;
   /** Age of the price data in minutes; null when unknown. */
   priceAgeMinutes: number | null;
-  source: "now" | "recent" | "neu";
 };
 
 export type AhPrices = Record<string, AhPrice>;
+
+export type AhSnapshot = {
+  fetchedAt: number;
+  items: AhPrices;
+};
 
 export type IngredientPrice = {
   id: string | null;
@@ -101,9 +104,10 @@ export type IngredientPrice = {
 
 export type PricedRecipe = Omit<Recipe, "ingredients"> & {
   cost: number;
-  revenue: number;
-  profit: number;
-  profitPerHour: number;
+  /** Null when the output has no price data and cannot be sold. */
+  revenue: number | null;
+  profit: number | null;
+  profitPerHour: number | null;
   confidence: number;
   hours: number;
   ingredients: IngredientPrice[];
@@ -139,6 +143,9 @@ function fillFromOrders(
         : b.pricePerUnit - a.pricePerUnit,
     );
 
+  // An empty order book has no price anchor; callers drop the row.
+  if (sorted.length === 0) return null;
+
   let remaining = qty;
   let filled = 0;
   let cost = 0;
@@ -166,9 +173,10 @@ function priceIngredient(
   product: BazaarProduct,
   qty: number,
   mode: PricingSettings["inputMode"],
-): IngredientPrice {
+): IngredientPrice | null {
   if (mode === "instant") {
     const fill = fillFromOrders(product.sell_summary, qty, "asc");
+    if (!fill) return null;
     return {
       id: product.quick_status.productId,
       name: product.quick_status.productId,
@@ -181,7 +189,8 @@ function priceIngredient(
   }
 
   const buy = bestBuy(product);
-  const unit = buy > 0 ? buy + 0.1 : 0;
+  if (buy <= 0) return null;
+  const unit = buy + 0.1;
   const available = product.buy_summary.reduce(
     (sum, order) => sum + order.amount,
     0,
@@ -203,19 +212,19 @@ function priceOutput(
   qty: number,
   mode: PricingSettings["outputMode"],
   taxRate: number,
-) {
+): { revenue: number; depth: number } | null {
   let gross = 0;
   let depth = 1;
 
   if (mode === "instant") {
     const fill = fillFromOrders(product.buy_summary, qty, "desc");
+    if (!fill) return null;
     gross = fill.cost;
     depth = fill.depth;
   } else {
     const sell = bestSell(product);
-    const unit =
-      Number.isFinite(sell) && sell > 0 ? Math.max(0.1, sell - 0.1) : 0;
-    gross = unit * qty;
+    if (!Number.isFinite(sell) || sell <= 0) return null;
+    gross = Math.max(0.1, sell - 0.1) * qty;
     const available = product.sell_summary.reduce(
       (sum, order) => sum + order.amount,
       0,
@@ -252,30 +261,97 @@ function priceAgeScore(price: AhPrice) {
   return Math.exp(-price.priceAgeMinutes / 60 / 6);
 }
 
-/** AH fees applied to a sale payout. */
-function ahFeeRate(payout: number) {
+/** Shared with scripts/cross-check-flips.mjs, which validates against this exact model. */
+export function ahFeeRate(payout: number) {
   return (
     AH_CREATION_FEE_RATE +
     (payout >= AH_COLLECTION_TAX_MIN ? AH_COLLECTION_TAX_RATE : 0)
   );
 }
 
+type PartScore = {
+  depth: number;
+  daily: number;
+  bazaarSpread?: number;
+  freshness?: number;
+};
+
+function bazaarScore(
+  product: BazaarProduct,
+  qty: number,
+  movingWeek: number,
+  depth: number,
+): PartScore {
+  return {
+    depth,
+    daily: movingWeek / 7 / Math.max(1, qty),
+    bazaarSpread: bazaarSpread(product),
+  };
+}
+
+function auctionScore(entry: AhPrice, qty: number): PartScore {
+  return {
+    depth: ahStability(entry),
+    daily: (entry.volumePerDay ?? 0) / Math.max(1, qty),
+    freshness: priceAgeScore(entry),
+  };
+}
+
+/**
+ * Prices the recipe output; null drops the row. An unlisted AH output keeps
+ * the row with a null revenue instead.
+ */
+function priceOutputPart(
+  recipe: Recipe,
+  products: BazaarProducts,
+  settings: PricingSettings,
+  ahPrices: AhPrices,
+): { revenue: number | null; score: PartScore } | null {
+  if (recipe.outputMarket === "auction") {
+    const entry = recipe.outputTag ? ahPrices[recipe.outputTag] : undefined;
+    if (!entry) {
+      // Unlisted AH output: it cannot be sold, so the row stays without a
+      // revenue value and with zero confidence instead of disappearing
+      // silently.
+      return { revenue: null, score: { depth: 0, daily: 0, freshness: 0 } };
+    }
+    const payout = entry.price * recipe.outputQty;
+    return {
+      revenue: payout * (1 - ahFeeRate(payout)),
+      score: auctionScore(entry, recipe.outputQty),
+    };
+  }
+
+  const product = products[recipe.outputId];
+  if (!product) return null;
+  const priced = priceOutput(
+    product,
+    recipe.outputQty,
+    settings.outputMode,
+    settings.taxRate,
+  );
+  if (!priced) return null;
+  return {
+    revenue: priced.revenue,
+    score: bazaarScore(
+      product,
+      recipe.outputQty,
+      product.quick_status.buyMovingWeek,
+      priced.depth,
+    ),
+  };
+}
+
 export function priceRecipe(
   recipe: Recipe,
   products: BazaarProducts,
   settings: PricingSettings,
-  ahPrices: AhPrices = {},
+  ahPrices: AhPrices,
 ): PricedRecipe | null {
-  // A missing output product drops the row before ingredient pricing can
-  // throw, so an unlisted output never becomes an error.
-  if (recipe.outputMarket === "bazaar" && !products[recipe.outputId])
-    return null;
+  const output = priceOutputPart(recipe, products, settings, ahPrices);
+  if (!output) return null;
 
-  const depths: number[] = [];
-  const dailies: number[] = [];
-  const bazaarSpreads: number[] = [];
-  const freshnesses: number[] = [];
-
+  const scores: PartScore[] = [output.score];
   const ingredients: IngredientPrice[] = [];
   let cost = 0;
 
@@ -285,10 +361,6 @@ export function priceRecipe(
       // An Auction House ingredient with no price data can't be priced
       // honestly, so the recipe is dropped rather than treating it as free.
       if (!entry) return null;
-      const daily = (entry.volumePerDay ?? 0) / Math.max(1, ingredient.qty);
-      depths.push(ahStability(entry));
-      dailies.push(daily);
-      freshnesses.push(priceAgeScore(entry));
       const ingredientPrice: IngredientPrice = {
         id: ingredient.id,
         name: ingredient.name,
@@ -301,6 +373,7 @@ export function priceRecipe(
       };
       ingredients.push(ingredientPrice);
       cost += ingredientPrice.cost;
+      scores.push(auctionScore(entry, ingredient.qty));
       continue;
     }
 
@@ -308,70 +381,46 @@ export function priceRecipe(
     if (!product)
       throw new Error(`Missing bazaar product for ${ingredient.name}`);
     const priced = priceIngredient(product, ingredient.qty, settings.inputMode);
+    if (!priced) return null;
     ingredients.push({
       ...priced,
       id: ingredient.id,
       name: ingredient.name,
     });
     cost += priced.cost;
-    depths.push(priced.depth);
-    dailies.push(
-      product.quick_status.sellMovingWeek / 7 / Math.max(1, ingredient.qty),
+    scores.push(
+      bazaarScore(
+        product,
+        ingredient.qty,
+        product.quick_status.sellMovingWeek,
+        priced.depth,
+      ),
     );
-    bazaarSpreads.push(bazaarSpread(product));
   }
 
-  let revenue: number;
-  let unlistedOutput = false;
-  if (recipe.outputMarket === "auction") {
-    const entry = recipe.outputTag ? ahPrices[recipe.outputTag] : undefined;
-    if (entry) {
-      const payout = entry.price * recipe.outputQty;
-      revenue = payout * (1 - ahFeeRate(payout));
-      depths.push(ahStability(entry));
-      dailies.push((entry.volumePerDay ?? 0) / Math.max(1, recipe.outputQty));
-      freshnesses.push(priceAgeScore(entry));
-    } else {
-      // Unlisted AH output: it cannot be sold, so the row stays with zero
-      // revenue and zero confidence instead of disappearing silently.
-      revenue = 0;
-      unlistedOutput = true;
-      depths.push(0);
-      dailies.push(0);
-      freshnesses.push(0);
-    }
-  } else {
-    const outputProduct = products[recipe.outputId];
-    if (!outputProduct) return null;
-    const output = priceOutput(
-      outputProduct,
-      recipe.outputQty,
-      settings.outputMode,
-      settings.taxRate,
-    );
-    revenue = output.revenue;
-    depths.push(output.depth);
-    dailies.push(
-      outputProduct.quick_status.buyMovingWeek /
-        7 /
-        Math.max(1, recipe.outputQty),
-    );
-    bazaarSpreads.push(bazaarSpread(outputProduct));
-  }
-
-  const depth = Math.min(...depths);
-  const volume = clamp(Math.min(...dailies) / 10, 0, 1);
+  const depth = Math.min(...scores.map((score) => score.depth));
+  const volume = clamp(
+    Math.min(...scores.map((score) => score.daily)) / 10,
+    0,
+    1,
+  );
 
   // Bazaar items score on bid/ask spread, Auction House items on the age of
   // their price data. Both become 0..1 scores and this slot averages them.
+  const spreads = scores.flatMap((score) =>
+    score.bazaarSpread === undefined ? [] : [score.bazaarSpread],
+  );
   const spreadParts: number[] = [];
-  if (bazaarSpreads.length > 0) {
+  if (spreads.length > 0) {
     const average =
-      bazaarSpreads.reduce((sum, spread) => sum + spread, 0) /
-      bazaarSpreads.length;
+      spreads.reduce((sum, spread) => sum + spread, 0) / spreads.length;
     spreadParts.push(1 - clamp(average / 0.1, 0, 1));
   }
-  spreadParts.push(...freshnesses);
+  spreadParts.push(
+    ...scores.flatMap((score) =>
+      score.freshness === undefined ? [] : [score.freshness],
+    ),
+  );
   const spread =
     spreadParts.reduce((sum, part) => sum + part, 0) / spreadParts.length;
 
@@ -379,29 +428,59 @@ export function priceRecipe(
     settings.inputMode === "order" || settings.outputMode === "offer"
       ? 0.85
       : 1;
-  const confidence = unlistedOutput
-    ? 0
-    : clamp(
-        100 * (0.4 * depth + 0.35 * volume + 0.25 * spread) * modePenalty,
-        0,
-        100,
-      );
+  const confidence =
+    output.revenue === null
+      ? 0
+      : clamp(
+          100 * (0.4 * depth + 0.35 * volume + 0.25 * spread) * modePenalty,
+          0,
+          100,
+        );
 
   const hours =
     (recipe.durationSeconds *
       (1 - clamp(settings.timeReduction, 0, 60) / 100)) /
     3_600;
   const safeHours = hours > 0 ? hours : 1 / 3_600;
-  const profit = revenue - cost;
+  const profit = output.revenue === null ? null : output.revenue - cost;
 
   return {
     ...recipe,
     ingredients,
     cost,
-    revenue,
+    revenue: output.revenue,
     profit,
-    profitPerHour: profit / safeHours,
+    profitPerHour: profit === null ? null : profit / safeHours,
     confidence,
     hours,
+  };
+}
+
+/**
+ * Market identifiers the recipes need: Bazaar product IDs and Coflnet tags.
+ * AH tags never enter the Bazaar cache key and vice versa; this is the one
+ * place that walks the recipes for both.
+ */
+export function collectMarketNeeds(recipes: Recipe[]): {
+  bazaarIds: string[];
+  auctionTags: string[];
+} {
+  const bazaarIds = new Set<string>();
+  const auctionTags = new Set<string>();
+  for (const recipe of recipes) {
+    if (recipe.outputMarket === "bazaar" && recipe.outputId)
+      bazaarIds.add(recipe.outputId);
+    if (recipe.outputMarket === "auction" && recipe.outputTag)
+      auctionTags.add(recipe.outputTag);
+    for (const ingredient of recipe.ingredients) {
+      if (ingredient.market === "bazaar" && ingredient.id)
+        bazaarIds.add(ingredient.id);
+      if (ingredient.market === "auction" && ingredient.tag)
+        auctionTags.add(ingredient.tag);
+    }
+  }
+  return {
+    bazaarIds: [...bazaarIds].sort(),
+    auctionTags: [...auctionTags].sort(),
   };
 }

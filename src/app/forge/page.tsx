@@ -1,4 +1,4 @@
-import type { Recipe } from "@/lib/forge";
+import type { AhPrices, Recipe } from "@/lib/forge";
 import type { Metadata } from "next";
 
 import { ForgeCalculator } from "@/components/forge-calculator";
@@ -15,10 +15,18 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const [snapshot, ah] = await Promise.all([
-    getBazaarSnapshot(),
-    getAhSnapshot(),
-  ]);
+  const snapshot = await getBazaarSnapshot();
+
+  // A Coflnet outage falls back to bazaar-only rows, not a failed page.
+  let ahPrices: AhPrices = {};
+  let ahFetchedAt: number | null = null;
+  try {
+    const ah = await getAhSnapshot();
+    ahPrices = ah.items;
+    ahFetchedAt = ah.fetchedAt;
+  } catch {
+    // ahFetchedAt stays null
+  }
 
   return (
     <main className="container mx-auto flex min-h-0 flex-1 flex-col p-4 pb-6 sm:px-6 sm:pt-6 sm:pb-8 md:px-8">
@@ -26,7 +34,8 @@ export default async function Page() {
         recipes={recipes as Recipe[]}
         products={snapshot.products}
         lastUpdated={snapshot.lastUpdated}
-        ah={ah}
+        ahPrices={ahPrices}
+        ahFetchedAt={ahFetchedAt}
       />
     </main>
   );

@@ -1,7 +1,12 @@
 import fs from "node:fs";
 import prettier from "prettier";
 
-import { createPartClassifier } from "./lib/recipe-parts.mjs";
+import {
+  createPartClassifier,
+  EXCLUSION_BUCKET_ORDER,
+  EXCLUSION_MESSAGES,
+} from "./lib/recipe-parts.mjs";
+import { percentile } from "./lib/stats.mjs";
 
 const root = process.cwd();
 const readJson = (file) =>
@@ -50,7 +55,7 @@ const isAuctionFlagged = (tag) =>
 const hasLiveMarket = (tag) =>
   isAuctionFlagged(tag) && (change[tag]?.now > 0 || change[tag]?.recent > 0);
 
-const { classifyPart, unpricedReason } = createPartClassifier({
+const { classifyPart } = createPartClassifier({
   products,
   ahNames,
   isAuctionFlagged,
@@ -58,41 +63,50 @@ const { classifyPart, unpricedReason } = createPartClassifier({
 });
 
 const recipes = raw.map((recipe) => {
-  const reasons = [];
+  const exclusions = [];
 
   const outputPart = { name: recipe.name, id: recipe.outputId };
   let outputMarket = null;
   let outputTag;
   if (!recipe.outputId) {
-    reasons.push(
-      "Output has no Hypixel item ID, so it cannot be matched to a priced market.",
-    );
+    exclusions.push({ code: "no-item-id", label: "Output", name: "" });
   } else {
     const classified = classifyPart(outputPart);
-    if (classified) {
+    if ("excluded" in classified) {
+      exclusions.push({
+        code: classified.excluded,
+        label: "Output",
+        name: recipe.name,
+      });
+    } else {
       outputMarket = classified.market;
       outputTag = classified.tag;
-    } else {
-      reasons.push(unpricedReason(outputPart, "output"));
     }
   }
 
   const parts = recipe.ingredients.map((ingredient) => {
-    if (ingredient.name === "Coins") {
-      reasons.push("Requires a direct coin payment.");
-      return { ...ingredient, market: null, tag: undefined };
-    }
     const classified = classifyPart(ingredient);
-    if (!classified) {
-      reasons.push(unpricedReason(ingredient, "input"));
+    if ("excluded" in classified) {
+      exclusions.push({
+        code: classified.excluded,
+        label: "Ingredient",
+        name: ingredient.name,
+      });
       return { ...ingredient, market: null, tag: undefined };
     }
     return { ...ingredient, ...classified };
   });
 
   if (recipe.ingredients.length === 0)
-    reasons.push("No direct ingredients were parsed.");
-  const unique = [...new Set(reasons)];
+    exclusions.push({ code: "no-ingredients", label: "", name: "" });
+
+  const messages = [
+    ...new Set(
+      exclusions.map(({ code, label, name }) =>
+        EXCLUSION_MESSAGES[code](label, name),
+      ),
+    ),
+  ];
 
   return {
     section: recipe.section,
@@ -111,9 +125,10 @@ const recipes = raw.map((recipe) => {
       market,
       tag,
     })),
-    isSupported: unique.length === 0,
-    reason: unique.length
-      ? unique.join(" ")
+    exclusionCodes: exclusions.map(({ code }) => code),
+    isSupported: exclusions.length === 0,
+    reason: messages.length
+      ? messages.join(" ")
       : outputMarket === "auction" || parts.some((l) => l.market === "auction")
         ? "Prices from the Auction House."
         : "Direct bazaar inputs and bazaar output.",
@@ -185,7 +200,8 @@ const formattedDocs = await prettier.format(docs, {
 });
 fs.writeFileSync(`${root}/docs/recipes.md`, formattedDocs);
 
-// Coverage report: every recipe lands in exactly one bucket.
+// Coverage report: each excluded recipe lands in exactly one bucket, its
+// highest-priority exclusion code.
 const sectionStats = Object.groupBy(recipes, (recipe) => recipe.section);
 for (const [section, sectionRecipes] of Object.entries(sectionStats)) {
   const inApp = sectionRecipes.filter((r) => r.isSupported).length;
@@ -195,15 +211,16 @@ for (const [section, sectionRecipes] of Object.entries(sectionStats)) {
 }
 
 const excluded = recipes.filter((recipe) => !recipe.isSupported);
-const coin = excluded.filter((r) => r.reason.includes("coin payment")).length;
-const noId = excluded.filter((r) =>
-  r.reason.includes("no Hypixel item ID"),
-).length;
-const noMarket = excluded.filter((r) =>
-  r.reason.includes("no market to price"),
-).length;
+const bucketOf = (recipe) => {
+  const codes = recipe.exclusionCodes;
+  return (
+    EXCLUSION_BUCKET_ORDER.find((code) => codes.includes(code)) ?? codes[0]
+  );
+};
+const bucketCount = (code) =>
+  excluded.filter((recipe) => bucketOf(recipe) === code).length;
 console.log(
-  `coverage ${supported}/${recipes.length} in app; excluded: ${coin} coin cost, ${noId} no item ID (pets), ${noMarket} no market`,
+  `coverage ${supported}/${recipes.length} in app; excluded: ${bucketCount("coin-cost")} coin cost, ${bucketCount("no-item-id")} no item ID (pets), ${bucketCount("no-price-data")} no price data, ${bucketCount("no-market")} no market`,
 );
 
 // Calibration print for the AH stability clip constant: relative drift
@@ -228,10 +245,8 @@ const drifts = appRecipes
   .filter((drift) => drift != null)
   .sort((a, b) => a - b);
 if (drifts.length > 0) {
-  const percentile = (p) =>
-    drifts[Math.min(drifts.length - 1, Math.floor(p * drifts.length))];
   const pct = (v) => `${(v * 100).toFixed(1)}%`;
   console.log(
-    `AH now-vs-recent drift p50 ${pct(percentile(0.5))}, p90 ${pct(percentile(0.9))}, p99 ${pct(percentile(0.99))}, max ${pct(drifts.at(-1))} over ${drifts.length} tags`,
+    `AH now-vs-recent drift p50 ${pct(percentile(drifts, 0.5))}, p90 ${pct(percentile(drifts, 0.9))}, p99 ${pct(percentile(drifts, 0.99))}, max ${pct(drifts.at(-1))} over ${drifts.length} tags`,
   );
 }

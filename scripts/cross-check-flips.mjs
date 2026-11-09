@@ -4,11 +4,14 @@
 //
 // For every recipe both tools price, it compares
 //   our revenue - our cost   vs   craftData.sellPrice - craftData.craftCost
-// using Coflnet's per-ingredient costs for the cost side and our fee model on
-// the change response's `now` price for the revenue side. It also reports
-// `recent` vs craftData.median per item, since our stability score relies on
-// those two staying close.
+// using Coflnet's per-ingredient costs for the cost side and the app's fee
+// model (imported from src/lib/forge.ts) on the change response's `now`
+// price for the revenue side. It also reports `recent` vs craftData.median
+// per item, since our stability score relies on those two staying close.
 import fs from "node:fs";
+
+import { ahFeeRate } from "../src/lib/forge.ts";
+import { percentile } from "./lib/stats.mjs";
 
 const readJson = (file) =>
   JSON.parse(fs.readFileSync(file, "utf8").replace(/^\uFEFF/, ""));
@@ -21,9 +24,6 @@ const get = async (path) => {
 
 const recipes = readJson("src/data/recipes.json");
 const committedChange = readJson("data/raw/coflnet-change.json");
-const AH_CREATION_FEE_RATE = 0.02;
-const AH_COLLECTION_TAX_RATE = 0.01;
-const AH_COLLECTION_TAX_MIN = 1_000_000;
 
 const flips = await get("flip/forge");
 const byTag = new Map(
@@ -54,10 +54,7 @@ for (const flip of flips) {
   compared++;
 
   const payout = entry.now * recipe.outputQty;
-  const feeRate =
-    AH_CREATION_FEE_RATE +
-    (payout >= AH_COLLECTION_TAX_MIN ? AH_COLLECTION_TAX_RATE : 0);
-  const ourRevenue = payout * (1 - feeRate);
+  const ourRevenue = payout * (1 - ahFeeRate(payout));
 
   const missingParts = [];
   let ourCost = 0;
@@ -87,6 +84,7 @@ for (const flip of flips) {
   costDrifts.push({ name: recipe.name, drift: costDrift });
   profitGaps.push({
     name: recipe.name,
+    ourRevenue,
     ourProfit: ourRevenue - ourCost,
     theirProfit: craft.sellPrice - craft.craftCost,
     gap: ourRevenue - ourCost - (craft.sellPrice - craft.craftCost),
@@ -99,12 +97,10 @@ const summarize = (label, rows) => {
     return;
   }
   const sorted = [...rows].sort((a, b) => a.drift - b.drift);
-  const pick = (p) =>
-    sorted[Math.min(sorted.length - 1, Math.floor(p * sorted.length))];
   const pct = (v) => `${(v * 100).toFixed(1)}%`;
   const worst = sorted.at(-1);
   console.log(
-    `${label}: median ${pct(pick(0.5).drift)}, p90 ${pct(pick(0.9).drift)}, worst ${pct(worst.drift)} (${worst.name})`,
+    `${label}: median ${pct(percentile(sorted, 0.5).drift)}, p90 ${pct(percentile(sorted, 0.9).drift)}, worst ${pct(worst.drift)} (${worst.name})`,
   );
 };
 
@@ -120,7 +116,7 @@ summarize("cost: per-ingredient sum vs craftCost", costDrifts);
 const wideProfit = profitGaps.filter(
   (row) =>
     Math.abs(row.gap) >
-    Math.max(0.1 * Math.abs(row.theirProfit), 0.05 * Math.abs(row.ourProfit)),
+    Math.max(0.1 * Math.abs(row.theirProfit), 0.05 * Math.abs(row.ourRevenue)),
 );
 console.log(
   `profit gap (includes our 2-3% fee wedge and sampling-time drift): ${profitGaps.length - wideProfit.length}/${profitGaps.length} within 10% of the flipper's profit or 5% of revenue`,

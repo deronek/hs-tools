@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import type { BazaarProducts, Recipe } from "./forge";
 import recipes from "@/data/recipes.json";
+import { collectMarketNeeds } from "./forge";
 
 const OrderSchema = z.object({
   amount: z.number(),
@@ -37,19 +38,14 @@ export type BazaarSnapshot = {
   products: BazaarProducts;
 };
 
-const neededIds = new Set(
-  (recipes as Recipe[]).flatMap((recipe) => [
-    ...(recipe.outputMarket === "bazaar" ? [recipe.outputId] : []),
-    ...recipe.ingredients.flatMap((ingredient) =>
-      ingredient.market === "bazaar" && ingredient.id ? [ingredient.id] : [],
-    ),
-  ]),
-);
+const { bazaarIds } = collectMarketNeeds(recipes as Recipe[]);
+const neededIds = new Set(bazaarIds);
 
 const getCachedBazaar = unstable_cache(
   async (): Promise<BazaarSnapshot> => {
     const response = await fetch("https://api.hypixel.net/v2/skyblock/bazaar", {
       cache: "no-store",
+      signal: AbortSignal.timeout(60_000),
     });
 
     if (!response.ok) {
@@ -62,6 +58,18 @@ const getCachedBazaar = unstable_cache(
     const products = Object.fromEntries(
       Object.entries(parsed.products).filter(([id]) => neededIds.has(id)),
     ) as BazaarProducts;
+
+    const emptyBooks = [...neededIds].filter((id) => {
+      const product = products[id];
+      return (
+        product &&
+        (product.sell_summary.length === 0 || product.buy_summary.length === 0)
+      );
+    });
+    if (emptyBooks.length > 0)
+      console.warn(
+        `Bazaar order book is empty for ${emptyBooks.join(", ")}; recipes relying on that side are dropped`,
+      );
 
     return { lastUpdated: parsed.lastUpdated, products };
   },

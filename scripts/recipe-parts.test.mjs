@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { createPartClassifier } from "./lib/recipe-parts.mjs";
+import {
+  createPartClassifier,
+  EXCLUSION_MESSAGES,
+  neededChangeTags,
+} from "./lib/recipe-parts.mjs";
 
 function makeClassifier(overrides = {}) {
   return createPartClassifier({
@@ -39,28 +43,68 @@ describe("recipe part classification", () => {
     ).toThrow(/Unmapped Auction House item "Unmapped Item"/);
   });
 
-  it("excludes Auction House items without price data, with the right reason", () => {
-    const { classifyPart, unpricedReason } = makeClassifier();
-    const part = { name: "Dead Item", id: "DEAD_TAG" };
-    expect(classifyPart(part)).toBeNull();
-    expect(unpricedReason(part, "output")).toBe(
-      "Output Dead Item is listed on the Auction House but has no price data yet.",
-    );
+  it("excludes Auction House items without price data", () => {
+    const { classifyPart } = makeClassifier();
+    expect(classifyPart({ name: "Dead Item", id: "DEAD_TAG" })).toEqual({
+      excluded: "no-price-data",
+    });
+  });
+
+  it("excludes coin payments", () => {
+    const { classifyPart } = makeClassifier();
+    expect(classifyPart({ name: "Coins", id: null })).toEqual({
+      excluded: "coin-cost",
+    });
   });
 
   it("excludes untradeable items as having no market", () => {
-    const { classifyPart, unpricedReason } = makeClassifier();
-    const part = { name: "Plain Item", id: "PLAIN_TAG" };
-    expect(classifyPart(part)).toBeNull();
-    expect(unpricedReason(part, "input")).toBe(
-      "Ingredient Plain Item has no market to price (not on the Bazaar or Auction House).",
-    );
+    const { classifyPart } = makeClassifier();
+    expect(classifyPart({ name: "Plain Item", id: "PLAIN_TAG" })).toEqual({
+      excluded: "no-market",
+    });
   });
 
   it("unmapped items without live prices do not block the update", () => {
     const { classifyPart } = makeClassifier({ hasLiveMarket: () => false });
+    expect(classifyPart({ name: "Unmapped Item", id: "UNMAPPED_TAG" })).toEqual(
+      { excluded: "no-price-data" },
+    );
+  });
+
+  it("maps exclusion codes to the report messages", () => {
+    expect(EXCLUSION_MESSAGES["coin-cost"]("Ingredient", "Coins")).toBe(
+      "Requires a direct coin payment.",
+    );
+    expect(EXCLUSION_MESSAGES["no-item-id"]("Output", "Mole")).toBe(
+      "Output has no Hypixel item ID, so it cannot be matched to a priced market.",
+    );
+    expect(EXCLUSION_MESSAGES["no-price-data"]("Output", "Divan's Drill")).toBe(
+      "Output Divan's Drill is listed on the Auction House but has no price data yet.",
+    );
+    expect(EXCLUSION_MESSAGES["no-market"]("Ingredient", "Amber Crystal")).toBe(
+      "Ingredient Amber Crystal has no market to price (not on the Bazaar or Auction House).",
+    );
+  });
+});
+
+describe("neededChangeTags", () => {
+  it("covers mapped tags and every AUCTION-flagged part, mapped or not", () => {
+    const recipes = [
+      {
+        outputId: "UNMAPPED_FLAGGED",
+        ingredients: [{ name: "Bazaar Thing", id: "BAZAAR_ITEM" }],
+      },
+      {
+        outputId: "BAZAAR_ITEM",
+        ingredients: [{ name: "Mapped Item", id: "SOME_ID" }],
+      },
+    ];
     expect(
-      classifyPart({ name: "Unmapped Item", id: "UNMAPPED_TAG" }),
-    ).toBeNull();
+      neededChangeTags(
+        recipes,
+        { "Mapped Item": "MAPPED_TAG" },
+        new Set(["UNMAPPED_FLAGGED"]),
+      ),
+    ).toEqual(["MAPPED_TAG", "UNMAPPED_FLAGGED"]);
   });
 });
