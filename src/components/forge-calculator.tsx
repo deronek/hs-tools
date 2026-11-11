@@ -13,6 +13,7 @@ import {
   columnFilteringFeature,
   columnSizingFeature,
   columnVisibilityFeature,
+  constructSortFn,
   createColumnHelper,
   createFilteredRowModel,
   createPaginatedRowModel,
@@ -87,8 +88,7 @@ type Props = {
   products: BazaarProducts;
   lastUpdated: number;
   ahPrices: AhPrices;
-  /** Null when the AH snapshot could not be fetched. */
-  ahFetchedAt: number | null;
+  ahFetchedAt: number;
 };
 
 type ForgeColumnMeta = {
@@ -116,6 +116,13 @@ const features = tableFeatures({
 });
 
 const columnHelper = createColumnHelper<typeof features, PricedRecipe>();
+
+// Null means "no sale price": rank it below every priced row descending
+// (above them ascending) instead of letting sortFn_basic compare it as zero.
+const sortFn_nullableNumber = constructSortFn({
+  ...sortFn_basic,
+  resolveDataValue: (value) => value ?? -Infinity,
+});
 
 type ForgeTable = ReactTable<typeof features, PricedRecipe>;
 
@@ -749,7 +756,7 @@ const columns = columnHelper.columns([
         </MetricBar>
       );
     },
-    sortFn: sortFn_basic,
+    sortFn: sortFn_nullableNumber,
     sortDescFirst: true,
     size: 108,
     enableGlobalFilter: false,
@@ -770,7 +777,7 @@ const columns = columnHelper.columns([
         />
       );
     },
-    sortFn: sortFn_basic,
+    sortFn: sortFn_nullableNumber,
     sortDescFirst: true,
     size: 110,
     enableGlobalFilter: false,
@@ -788,7 +795,7 @@ const columns = columnHelper.columns([
         />
       );
     },
-    sortFn: sortFn_basic,
+    sortFn: sortFn_nullableNumber,
     sortDescFirst: true,
     size: 130,
     enableGlobalFilter: false,
@@ -1192,14 +1199,7 @@ export function ForgeCalculator({
       <p className="text-muted-foreground text-sm">
         Bazaar prices updated <RelativeTime timestamp={lastUpdated} />
         <span className="select-none"> · </span>
-        {ahFetchedAt == null ? (
-          "Auction House prices unavailable."
-        ) : (
-          <>
-            Auction House prices updated{" "}
-            <RelativeTime timestamp={ahFetchedAt} />
-          </>
-        )}
+        Auction House prices updated <RelativeTime timestamp={ahFetchedAt} />
       </p>
 
       <section className="py-1">

@@ -36,7 +36,7 @@ Vercel serves these static files from its edge cache. `next.config.ts` gives has
 - `data/raw/coflnet-items.json`: fetched from Coflnet's [item catalog](https://sky.coflnet.com/api/items). Its per-item `flags` (`BAZAAR`, `AUCTION`, …) identify Auction House items.
 - `data/raw/coflnet-change.json`: fetched from Coflnet's [price change endpoint](https://sky.coflnet.com/api/prices/change) for every Auction House tag the recipes can price: the reviewed `src/data/ah-names.json` mappings plus every recipe part the catalog flags `AUCTION`, mapped or not. Its live prices decide whether an Auction House item actually has a market right now, and they make the unmapped-item check below able to fire.
 
-The script downloads each file only if it is missing, and re-fetches the change file whenever the recipes need tags it does not cover. Remove a file to refresh it. Git ignores all five.
+The script downloads each file only if it is missing, and re-fetches the change file whenever the recipes need tags outside the set requested for the cached download, recorded beside it in `data/raw/coflnet-change.tags.json` (Coflnet omits tags it has no data for, so the response itself cannot prove coverage). Remove a file to refresh it. Git ignores all of them.
 
 **Choosing the market for each ingredient and output**
 
@@ -149,7 +149,7 @@ Rate limits are per IP: 30 requests / 10 s and 100 requests / 1 min ([Coflnet AP
 
 Attribution, per Coflnet's rules: the app footer links to `https://sky.coflnet.com/data` ("AH prices provided by SkyCofl") on every page, and each AH item links to `https://sky.coflnet.com/item/{tag}` where the item's name is displayed. HS Tools is free and non-commercial, so no Premium+ subscription is required.
 
-The Bazaar has no offline fallback: a failed bazaar request fails the page. A failed Coflnet request empties the AH snapshot: AH rows drop out and the page shows an availability note. The NEU fallback is best-effort and losing it only marks the affected items as unpriced.
+Neither source has an offline fallback: a failed Bazaar or Coflnet request fails the page render. The ISR cache then keeps serving the last fully priced page while revalidation retries on the next request, so an outage shows stale prices instead of a degraded calculator. The NEU fallback is best-effort and losing it only marks the affected items as unpriced.
 
 ## Checking against Coflnet's calculator
 

@@ -48,6 +48,7 @@ const sources = [
 ];
 
 const CHANGE_PATH = "data/raw/coflnet-change.json";
+const CHANGE_TAGS_PATH = "data/raw/coflnet-change.tags.json";
 
 fs.mkdirSync("data/raw", { recursive: true });
 
@@ -118,10 +119,16 @@ for (const source of sources) {
 runScript("parse-wiki.mjs");
 
 const neededTags = collectChangeTags();
+// The payload can't prove coverage: Coflnet omits tags it has no data for.
+// The tags file records what the cached download requested.
 const covered = () => {
   try {
-    const change = JSON.parse(fs.readFileSync(CHANGE_PATH, "utf8"));
-    return neededTags.every((tag) => change[tag] != null);
+    JSON.parse(fs.readFileSync(CHANGE_PATH, "utf8"));
+    const requested = JSON.parse(fs.readFileSync(CHANGE_TAGS_PATH, "utf8"));
+    return (
+      Array.isArray(requested) &&
+      neededTags.every((tag) => requested.includes(tag))
+    );
   } catch {
     return false;
   }
@@ -145,6 +152,8 @@ if (!covered()) {
       );
     },
   });
+  // Written after the download: a crash in between must not mark stale data covered.
+  fs.writeFileSync(CHANGE_TAGS_PATH, JSON.stringify(neededTags));
 }
 
 runScript("build-data.mjs");
