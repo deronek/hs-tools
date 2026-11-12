@@ -82,8 +82,12 @@ for (const id of ids) {
     );
   }
   if (image.subarray(0, 8).toString("hex") === PNG_SIGNATURE) {
-    // Lossless keeps Minecraft pixel art crisp; converted icons are still
-    // hashed over their final WebP bytes so the cache stays content-based.
+    // Lossless keeps Minecraft pixel art crisp.
+    image = await sharp(image).webp({ lossless: true }).toBuffer();
+  } else if ((await sharp(image).metadata()).pages > 1) {
+    // SkyCrypt serves animated WebP for some items (gemstones, drill
+    // engines). sharp reads one page by default, so re-encoding stores
+    // only the first frame.
     image = await sharp(image).webp({ lossless: true }).toBuffer();
   }
   icons.push([id, image]);
