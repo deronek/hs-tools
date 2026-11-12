@@ -1,6 +1,9 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import sharp from "sharp";
+
+const PNG_SIGNATURE = "89504e470d0a1a0a";
 
 const recipes = JSON.parse(
   await fs
@@ -23,7 +26,6 @@ if (ids.some((id) => typeof id !== "string" || !/^[A-Z0-9_]+$/.test(id))) {
 const icons = [];
 for (const id of ids) {
   let image;
-  let extension;
   let invalidResponse = "";
   for (let attempt = 1; attempt <= 3; attempt++) {
     const response = await fetch(
@@ -40,15 +42,14 @@ for (const id of ids) {
       const isWebp =
         candidate.toString("ascii", 0, 4) === "RIFF" &&
         candidate.toString("ascii", 8, 12) === "WEBP";
-      const isPng =
-        candidate.subarray(0, 8).toString("hex") === "89504e470d0a1a0a";
+      const isPng = candidate.subarray(0, 8).toString("hex") === PNG_SIGNATURE;
 
       // SkyCrypt's WebP path serves proper item textures; its PNG path has
       // served identical placeholder bytes for distinct items, so a PNG
       // response falls back to Coflnet's per-tag icon before being trusted.
+      // Every icon is stored as WebP, so a PNG outcome is converted below.
       if (isWebp) {
         image = candidate;
-        extension = "webp";
         break;
       }
       if (isPng) {
@@ -59,14 +60,12 @@ for (const id of ids) {
         const fallback = Buffer.from(await coflnet.arrayBuffer());
         if (
           coflnet.ok &&
-          fallback.subarray(0, 8).toString("hex") === "89504e470d0a1a0a"
+          fallback.subarray(0, 8).toString("hex") === PNG_SIGNATURE
         ) {
           image = fallback;
-          extension = "png";
           break;
         }
         image = candidate;
-        extension = "png";
         break;
       }
 
@@ -82,7 +81,12 @@ for (const id of ids) {
       `Icon download for ${id} did not return an image after 3 attempts (${invalidResponse}).`,
     );
   }
-  icons.push([id, image, extension]);
+  if (image.subarray(0, 8).toString("hex") === PNG_SIGNATURE) {
+    // Lossless keeps Minecraft pixel art crisp; converted icons are still
+    // hashed over their final WebP bytes so the cache stays content-based.
+    image = await sharp(image).webp({ lossless: true }).toBuffer();
+  }
+  icons.push([id, image]);
 }
 
 // Distinct items sharing one image usually means an upstream placeholder.
@@ -102,9 +106,9 @@ for (const id of ids) {
 const outputDirectory = "public/item-icons";
 await fs.mkdir(outputDirectory, { recursive: true });
 const itemIcons = {};
-for (const [id, image, extension] of icons) {
+for (const [id, image] of icons) {
   const hash = createHash("sha256").update(image).digest("hex").slice(0, 16);
-  const filename = `${id}.${hash}.${extension}`;
+  const filename = `${id}.${hash}.webp`;
   await fs.writeFile(path.join(outputDirectory, filename), image);
   itemIcons[id] = filename;
 }
@@ -116,7 +120,7 @@ await fs.writeFile(
 const currentFiles = new Set(Object.values(itemIcons));
 for (const filename of await fs.readdir(outputDirectory)) {
   if (
-    /^[A-Z0-9_]+\.[a-f0-9]{16}\.(webp|png)$/.test(filename) &&
+    /^[A-Z0-9_]+\.[a-f0-9]{16}\.webp$/.test(filename) &&
     !currentFiles.has(filename)
   ) {
     await fs.rm(path.join(outputDirectory, filename));
