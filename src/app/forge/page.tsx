@@ -15,8 +15,14 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const snapshot = await getBazaarSnapshot();
-  const ah = await getAhSnapshot();
+  // The two snapshots hit different APIs with independent cache keys, so
+  // they fetch in parallel. Production never renders this page on a
+  // request path: these runs happen only during the build-time prerender
+  // and background ISR revalidation.
+  const [snapshot, ah] = await Promise.all([
+    getBazaarSnapshot(),
+    getAhSnapshot(),
+  ]);
 
   return (
     <main className="container mx-auto flex min-h-0 flex-1 flex-col p-4 pb-6 sm:px-6 sm:pt-6 sm:pb-8 md:px-8">
