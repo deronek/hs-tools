@@ -24,7 +24,7 @@ Refresh the committed item icons separately when needed:
 pnpm icons:update
 ```
 
-The icon updater downloads images for item IDs in `src/data/recipes.json` from SkyCrypt, falls back to Coflnet's icon endpoint when SkyCrypt serves a PNG placeholder, and converts every PNG response to lossless WebP with sharp (SkyCrypt's WebP path and Coflnet's icon endpoint do not cover all items, so conversion keeps the icon set single-format). Animated WebP responses are collapsed to their first frame. The updater writes content-hashed WebP files to `public/item-icons` and updates `src/data/item-icons.json`. Review and commit the generated files with recipe changes.
+The committed icon set is sticky: the updater fetches only for items without a committed icon, for items in a curated wiki-override map, and to downsize committed icons stored as an exact upscale of their base texture — so upstream variant flapping never rewrites committed icons. SkyCrypt's item endpoint is the primary source for new icons; Coflnet's icon endpoint is the fallback when SkyCrypt cannot render an item properly (any response smaller than 128x128 is placeholder junk shared between items), and the wiki-override map covers the few items both upstreams render incorrectly. Every image is collapsed to its first frame, reduced to its base texture size when it is an exact nearest-neighbor upscale (most game textures are 16x16), and stored as a lossless WebP with a content-hashed filename in `public/item-icons`, recorded in `src/data/item-icons.json`. Review and commit the generated files with recipe changes.
 
 Vercel serves these static files from its edge cache. `next.config.ts` gives hashed icon URLs a one-year immutable TTL; changing an icon changes its URL.
 
