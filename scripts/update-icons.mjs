@@ -12,9 +12,9 @@ const WIKI_USER_AGENT = "hs-tools (https://github.com/deronek/hs-tools)";
 const WIKI_ICON_SIZE = 16;
 
 // SkyCrypt serves a placeholder and Coflnet corrupted art for these items,
-// so their texture comes from the wiki instead. Direct file URLs on the
-// wiki mirror, verified by hand; the wiki serves 160x160 renders of 16x16
-// game textures.
+// so their texture comes from the wiki instead while SkyCrypt cannot
+// render them properly. Direct file URLs on the wiki mirror, verified by
+// hand; the wiki serves 160x160 renders of 16x16 game textures.
 const WIKI_OVERRIDES = {
   GEMSTONE_DRILL_3:
     "https://hypixelskyblock.minecraft.wiki/images/Topaz_Drill_KGR-12.gif",
@@ -122,10 +122,29 @@ const normalizeIcon = async (image) => {
   );
 };
 
-const counts = { skycrypt: 0, coflnet: 0, wiki: 0, downscale: 0, keep: 0 };
-const changedIds = [];
+// The wiki serves large renders of the 16x16 game textures.
+const normalizeWikiIcon = (image) =>
+  sharp(image)
+    .resize(WIKI_ICON_SIZE, WIKI_ICON_SIZE, { kernel: "nearest" })
+    .webp({ lossless: true })
+    .toBuffer();
+
+// Icons are compared at the pixel level, so container, encoder, or
+// animation variant changes never register as art changes.
+const samePixels = async (a, b) => {
+  const left = await decodeFirstFrame(a);
+  const right = await decodeFirstFrame(b);
+  return (
+    left.info.width === right.info.width &&
+    left.info.height === right.info.height &&
+    left.data.equals(right.data)
+  );
+};
+
+const counts = { unchanged: 0, skycrypt: 0, wiki: 0, coflnet: 0 };
+const suspectKept = [];
+const writtenIcons = [];
 const failures = [];
-const processedIcons = [];
 
 for (const id of ids) {
   const previous = icons[id];
@@ -134,57 +153,41 @@ for (const id of ids) {
     ? await fs.readFile(previousPath).catch(() => undefined)
     : undefined;
 
-  let normalized;
-  let source;
-  if (WIKI_OVERRIDES[id]) {
+  const sky = await fetchSkyCryptIcon(id);
+  let normalized = null;
+  let source = null;
+  if (sky && isProperRender(await sharp(sky).metadata())) {
+    normalized = await normalizeIcon(sky);
+    source = "skycrypt";
+  } else if (WIKI_OVERRIDES[id]) {
     const wiki = await fetchWikiIcon(WIKI_OVERRIDES[id]);
     if (wiki && isProperRender(await sharp(wiki).metadata())) {
-      // The wiki serves large renders of the 16x16 game textures.
-      normalized = await sharp(wiki)
-        .resize(WIKI_ICON_SIZE, WIKI_ICON_SIZE, { kernel: "nearest" })
-        .webp({ lossless: true })
-        .toBuffer();
+      normalized = await normalizeWikiIcon(wiki);
       source = "wiki";
-    } else {
-      console.warn(
-        `warning: wiki override for ${id} did not return proper art`,
-      );
     }
   }
   if (!normalized && !previousBuf) {
-    const sky = await fetchSkyCryptIcon(id);
-    if (sky && isProperRender(await sharp(sky).metadata())) {
-      normalized = await normalizeIcon(sky);
-      source = "skycrypt";
-    } else {
-      const coflnet = await fetchCoflnetIcon(id);
-      if (coflnet) {
-        normalized = await normalizeIcon(coflnet);
-        source = "coflnet";
-      }
-    }
-  }
-  if (!normalized && previousBuf) {
-    // The committed icon is the art source of truth: keep its pixels and
-    // only rewrite it when it is stored larger than its base texture size.
-    const { data, info } = await decodeFirstFrame(previousBuf);
-    const reduced = reduceUpscale({
-      data,
-      width: info.width,
-      height: info.height,
-    });
-    if (reduced) {
-      normalized = await encodeIconWebp(reduced);
-      source = "downscale";
+    const coflnet = await fetchCoflnetIcon(id);
+    if (coflnet) {
+      normalized = await normalizeIcon(coflnet);
+      source = "coflnet";
     }
   }
 
   if (!normalized) {
+    // Nothing trustworthy came back; the committed icon stays rather than
+    // being replaced by junk.
     if (previousBuf) {
-      counts.keep++;
+      counts.unchanged++;
+      suspectKept.push(id);
       continue;
     }
     failures.push(id);
+    continue;
+  }
+
+  if (previousBuf && (await samePixels(previousBuf, normalized))) {
+    counts.unchanged++;
     continue;
   }
 
@@ -193,35 +196,31 @@ for (const id of ids) {
     .digest("hex")
     .slice(0, 16);
   const filename = `${id}.${hash}.webp`;
-  processedIcons.push({ id, normalized });
-  if (previousBuf && previous === filename) {
-    counts.keep++;
-    continue;
-  }
   await fs.writeFile(path.join(ICONS_DIRECTORY, filename), normalized);
   icons[id] = filename;
-  changedIds.push(id);
+  writtenIcons.push({ id, normalized });
   if (previousBuf) await fs.rm(previousPath, { force: true });
   counts[source]++;
 }
 
-// Distinct items sharing one image usually means an upstream placeholder.
+// Distinct items written with one image usually means an upstream
+// placeholder slipped through the size guard.
 {
   const byHash = new Map();
-  for (const { id, normalized } of processedIcons) {
+  for (const { id, normalized } of writtenIcons) {
     const hash = createHash("sha256").update(normalized).digest("hex");
     byHash.set(hash, [...(byHash.get(hash) ?? []), id]);
   }
   for (const [, sharedIds] of byHash) {
     if (sharedIds.length > 1) {
       console.warn(
-        `warning: identical icon bytes for ${sharedIds.join(", ")}; check for upstream placeholder icons`,
+        `warning: identical icon bytes written for ${sharedIds.join(", ")}; check for upstream placeholder icons`,
       );
     }
   }
 }
 
-if (changedIds.length > 0) {
+if (writtenIcons.length > 0) {
   await fs.writeFile(ICON_MAP_FILE, `${JSON.stringify(icons, null, 2)}\n`);
 }
 
@@ -240,5 +239,10 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Item icons: ${counts.keep} kept, ${counts.downscale} downscaled, ${counts.wiki} from wiki overrides, ${counts.skycrypt} from SkyCrypt, ${counts.coflnet} from Coflnet (${changedIds.length} files changed in ${ICONS_DIRECTORY}).`,
+  `Item icons: ${counts.unchanged} unchanged, ${writtenIcons.length} rewritten (${counts.skycrypt} SkyCrypt, ${counts.wiki} wiki, ${counts.coflnet} Coflnet) in ${ICONS_DIRECTORY}.`,
 );
+if (suspectKept.length > 0) {
+  console.warn(
+    `warning: committed icons kept while SkyCrypt served junk or failed for: ${suspectKept.join(", ")}`,
+  );
+}
