@@ -1199,7 +1199,7 @@ export function ForgeCalculator({
       <p className="text-muted-foreground text-sm">
         Bazaar prices updated <RelativeTime timestamp={lastUpdated} />
         <span className="select-none"> · </span>
-        Auction House prices updated <RelativeTime timestamp={ahFetchedAt} />
+        Auction House snapshot fetched <RelativeTime timestamp={ahFetchedAt} />
       </p>
 
       <section className="py-1">

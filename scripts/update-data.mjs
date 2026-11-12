@@ -135,6 +135,10 @@ const covered = () => {
 };
 
 if (!covered()) {
+  // Deleted before the payload is replaced and rewritten only after it
+  // lands, so an interrupted refresh leaves no record for covered() to pair
+  // with a payload fetched for different tags.
+  fs.rmSync(CHANGE_TAGS_PATH, { force: true });
   await download({
     path: CHANGE_PATH,
     url: `https://sky.coflnet.com/api/prices/change?itemTags=${neededTags.join(",")}`,
@@ -152,7 +156,6 @@ if (!covered()) {
       );
     },
   });
-  // Written after the download: a crash in between must not mark stale data covered.
   fs.writeFileSync(CHANGE_TAGS_PATH, JSON.stringify(neededTags));
 }
 

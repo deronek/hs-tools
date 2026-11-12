@@ -106,6 +106,8 @@ async function fetchJson(url: string): Promise<unknown> {
   }
 }
 
+const REVALIDATE_SECONDS = 3_600;
+
 const getCachedAh = unstable_cache(
   async (): Promise<AhSnapshot> => {
     const tags = [...neededTags].sort();
@@ -134,9 +136,17 @@ const getCachedAh = unstable_cache(
     return snapshot;
   },
   ["coflnet-forge", [...neededTags].sort().join(",")],
-  { revalidate: 3_600 },
+  { revalidate: REVALIDATE_SECONDS },
 );
 
 export async function getAhSnapshot(): Promise<AhSnapshot> {
-  return getCachedAh();
+  const snapshot = await getCachedAh();
+  // unstable_cache serves the stale value when a refresh fails, so a
+  // snapshot older than the revalidate window means the refresh failed.
+  // Throwing fails the regen, so ISR keeps the previous page instead of
+  // publishing refreshed Bazaar prices beside stale AH prices.
+  if (Date.now() - snapshot.fetchedAt > REVALIDATE_SECONDS * 1000) {
+    throw new Error(`AH snapshot is over ${REVALIDATE_SECONDS}s old`);
+  }
+  return snapshot;
 }
