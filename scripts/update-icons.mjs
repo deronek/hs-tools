@@ -199,7 +199,6 @@ for (const id of ids) {
   await fs.writeFile(path.join(ICONS_DIRECTORY, filename), normalized);
   icons[id] = filename;
   writtenIcons.push({ id, normalized });
-  if (previousBuf) await fs.rm(previousPath, { force: true });
   counts[source]++;
 }
 
@@ -224,6 +223,8 @@ if (writtenIcons.length > 0) {
   await fs.writeFile(ICON_MAP_FILE, `${JSON.stringify(icons, null, 2)}\n`);
 }
 
+// Icons replaced this run are deleted here, after the map write, so an
+// interrupted run leaves the committed map and its files consistent.
 const referenced = new Set(Object.values(icons));
 for (const filename of await fs.readdir(ICONS_DIRECTORY)) {
   if (

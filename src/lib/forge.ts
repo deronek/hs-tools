@@ -67,7 +67,8 @@ export const DEFAULT_SETTINGS: PricingSettings = {
  * A BIN listing pays a creation fee that scales with the item price (1%
  * below 10,000,000 coins, 2% up to 100,000,000, 2.5% above), and collecting
  * a sale above 1,000,000 coins adds a 1% tax capped so the proceeds never
- * fall below 1,000,000 coins. Derpy's doubled-tax window is not modeled.
+ * fall below 1,000,000 coins. Derpy's mayor window quadruples the
+ * collection tax only; it is not modeled.
  */
 export const AH_COLLECTION_TAX_RATE = 0.01;
 export const AH_COLLECTION_TAX_MIN = 1_000_000;
@@ -315,7 +316,7 @@ function auctionScore(entry: AhPrice, qty: number): PartScore {
 
 /**
  * Prices the recipe output; null drops the row. An unlisted AH output keeps
- * the row with a null revenue instead.
+ * the row with a null revenue instead, as long as every ingredient prices.
  */
 function priceOutputPart(
   recipe: Recipe,
@@ -328,7 +329,7 @@ function priceOutputPart(
     if (!entry) {
       // Unlisted AH output: it cannot be sold, so the row stays without a
       // revenue value and with zero confidence instead of disappearing
-      // silently.
+      // silently. (An unpriced AH ingredient still drops the row.)
       return { revenue: null, score: { depth: 0, daily: 0, freshness: 0 } };
     }
     const payout = entry.price * recipe.outputQty;
@@ -394,8 +395,9 @@ export function priceRecipe(
     }
 
     const product = ingredient.id ? products[ingredient.id] : undefined;
-    if (!product)
-      throw new Error(`Missing bazaar product for ${ingredient.name}`);
+    // A product the Bazaar no longer lists prices like an empty order book:
+    // the recipe drops instead of failing the page render.
+    if (!product) return null;
     const priced = priceIngredient(product, ingredient.qty, settings.inputMode);
     if (!priced) return null;
     ingredients.push({
@@ -440,8 +442,12 @@ export function priceRecipe(
   const spread =
     spreadParts.reduce((sum, part) => sum + part, 0) / spreadParts.length;
 
+  // Modes only change Bazaar pricing, so only a mode that affects a
+  // Bazaar-priced part carries the penalty.
   const modePenalty =
-    settings.inputMode === "order" || settings.outputMode === "offer"
+    (settings.inputMode === "order" &&
+      ingredients.some((ingredient) => ingredient.market === "bazaar")) ||
+    (settings.outputMode === "offer" && recipe.outputMarket === "bazaar")
       ? 0.85
       : 1;
   const confidence =

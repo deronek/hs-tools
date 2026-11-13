@@ -82,6 +82,12 @@ describe("priceRecipe", () => {
     expect(priceRecipe(recipe, empty, DEFAULT_SETTINGS, {})).toBeNull();
   });
 
+  it("drops recipes whose bazaar product is missing", () => {
+    expect(
+      priceRecipe(recipe, { B: product(200, 190) }, DEFAULT_SETTINGS, {}),
+    ).toBeNull();
+  });
+
   it("drops recipes whose output order book is empty", () => {
     const empty: BazaarProducts = {
       A: product(100, 90),
@@ -211,6 +217,18 @@ describe("auction house pricing", () => {
     );
 
     expect(offer?.revenue).toBe(instant?.revenue);
+  });
+
+  it("skips the mode penalty when no part is Bazaar-priced", () => {
+    const instant = priceRecipe(ahRecipe, products, DEFAULT_SETTINGS, ahPrices);
+    const modes = priceRecipe(
+      ahRecipe,
+      products,
+      { ...DEFAULT_SETTINGS, inputMode: "order", outputMode: "offer" },
+      ahPrices,
+    );
+
+    expect(modes?.confidence).toBe(instant?.confidence);
   });
 
   it("renders no revenue and zero confidence for an unlisted AH output", () => {

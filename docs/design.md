@@ -96,12 +96,12 @@ Output modes:
 - Instant sell walks `buy_summary` from the highest price until the output quantity is filled.
 - Sell offer uses the lowest `sell_summary` price minus 0.1 per unit, with a floor of 0.1.
 
-The mode toggles apply only to Bazaar items; AH items are buy-nows and sell-at-market regardless of mode. The 0.85 mode penalty stays recipe-wide.
+The mode toggles apply only to Bazaar items; AH items are buy-nows and sell-at-market regardless of mode. The 0.85 mode penalty applies only when a selected mode changes how a Bazaar-priced part is valued.
 
 Revenue is gross output value minus market-specific fees:
 
 - Bazaar output: gross minus the bazaar tax. All bazaar sales carry a 1.25% tax, and the Bazaar Flipper community upgrade reduces it by 0.125% per level up to -0.25%, making the tax 1%. The settings select offers exactly the values that can occur in game: 1.25% (no perk), 1.125% (Bazaar Flipper 1), and 1% (Bazaar Flipper 2). The default is 1.25%.
-- Auction House output: `now × qty` minus the BIN creation fee (1% below 10,000,000 coins, 2% up to 100,000,000, 2.5% above) and, when the payout exceeds 1,000,000 coins, the 1% collection tax capped so proceeds never fall below 1,000,000 ([Auction House → Fees and Taxes](https://hypixelskyblock.minecraft.wiki/w/Auction_House)). The brackets live in `ahCreationFeeRate` and `ahCollectionTax` in `src/lib/forge.ts`. Derpy's doubled-tax mayor window is not modeled.
+- Auction House output: `now × qty` minus the BIN creation fee (1% below 10,000,000 coins, 2% up to 100,000,000, 2.5% above) and, when the payout exceeds 1,000,000 coins, the 1% collection tax capped so proceeds never fall below 1,000,000 ([Auction House → Fees and Taxes](https://hypixelskyblock.minecraft.wiki/w/Auction_House)). The brackets live in `ahCreationFeeRate` and `ahCollectionTax` in `src/lib/forge.ts`. Derpy's mayor window quadruples the collection tax only; it is not modeled.
 
 The AH price shown per row is Coflnet's `now` field: the current market sale price estimate, not a lowest-BIN quote. A lone floor listing is a fragile anchor and would put per-item listing calls on the render path. Each AH item links to `https://sky.coflnet.com/item/{tag}` so a user can audit where the number came from. When `now` is missing, the item prices from `recent` (the recent-window typical price); an item with neither value is treated as unpriced. Per-item listing depth from Coflnet's `/analysis/live` could sharpen the confidence score later, but only behind a lazy cache, never on the render path.
 
@@ -127,13 +127,13 @@ Confidence is a heuristic from 0 to 100. It is not a fill probability.
 | Volume |    35% | Lower of input daily volume per required unit and output daily volume per output unit, scaled by 10 |
 | Spread |    25% | Average bid/ask spread, where 0% spread scores 1 and 10% or more scores 0                           |
 
-Order and offer modes multiply the score by 0.85. The result is clamped to 0 to 100.
+Order and offer modes multiply the score by 0.85 when they affect a Bazaar-priced part. The result is clamped to 0 to 100.
 
 Auction House items score on the same three parts so mixed-market rows stay on one scale:
 
 - The 0.4 depth slot uses price stability: `1 - |now - recent| / recent`, saturating like the Bazaar spread curve so 10% relative drift scores 0. The data:update report prints the observed drift percentiles (p50 ≈ 5%, p90 ≈ 16% in the November 2026 check) as the reference for that cutoff. `recent` is deliberately the base and not the month-scale `monthly` average, which reads legitimate trend moves as instability.
 - The 0.35 volume slot uses Coflnet's 24-hour sold volume, the same daily-unit curve (`min(daily) / 10`) the Bazaar side gets from `sellMovingWeek / 7`.
-- The 0.25 spread slot uses the age of the price data: `exp(-hoursOld / 6)` from the per-item `lastUpdated` stamp. A stale price and a wide Bazaar spread mean the same thing: this may not be the price you actually get. A NEU-fallback price has no timestamp, so it scores 0 here.
+- The 0.25 spread slot uses the age of the price data: `exp(-hoursOld / 6)` from the per-item `lastUpdated` stamp. A stale price and a wide Bazaar spread mean the same thing: this may not be the price you actually get. A NEU-fallback price has no `recent` value, sold volume, or timestamp, so it scores 0 on stability, volume, and price age.
 
 Depth and volume still take the minimum across all ingredients and the output; the spread slot averages the Bazaar spread score (one term over its items) with each AH item's price-age score. An unpriced AH output renders with no revenue, profit, or profit-per-hour value and confidence 0; an unpriced AH ingredient hides the recipe rather than pricing the item as free.
 
@@ -181,7 +181,7 @@ Unit tests cover the AH fee branches, the unpriced-output and unpriced-ingredien
 - Pets have no Hypixel item ID; their Coflnet tags exist and live in `ah-names.json`, but identity work (icons, the pet price-scale quirk) is a follow-up batch. Their recipes, plus Bejeweled Collar, exit at the no-item-ID check before `ah-names.json` is consulted, so those mappings are inert until that work lands.
 - Perfect Gemstones, Relic of Power, and Secret Railroad Pass have an ingredient or output with no market and cannot be priced honestly.
 - AH prices are Coflnet estimates, not order-book quotes; on fast-moving items they can trail the market until the next refresh, and the confidence score's price-age term reflects that.
-- AH fees follow the wiki's BIN price brackets and the capped collection tax; Derpy's doubled-tax mayor window is unmodeled.
+- AH fees follow the wiki's BIN price brackets and the capped collection tax; Derpy's mayor window quadruples the collection tax only and is unmodeled.
 - Item icons are fetched from SkyCrypt, with Coflnet as a fallback, during manual updates. If an upstream icon changes or an item ID is dropped, rerun `pnpm icons:update`; the recipe row still works if an icon file is missing.
 - There is no historical price chart, no auction history, and no saved user settings.
 - There is no theme toggle; only dark mode is supported.
