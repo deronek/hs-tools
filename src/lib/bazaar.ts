@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import type { BazaarProducts, Recipe } from "./forge";
 import recipes from "@/data/recipes.json";
+import { collectMarketNeeds } from "./forge";
 
 const OrderSchema = z.object({
   amount: z.number(),
@@ -33,23 +34,22 @@ const ResponseSchema = z.object({
 });
 
 export type BazaarSnapshot = {
+  /** When this snapshot was fetched, used for the staleness check. */
+  fetchedAt: number;
   lastUpdated: number;
   products: BazaarProducts;
 };
 
-const neededIds = new Set(
-  (recipes as Recipe[]).flatMap((recipe) => [
-    recipe.outputId,
-    ...recipe.ingredients.flatMap((ingredient) =>
-      ingredient.id ? [ingredient.id] : [],
-    ),
-  ]),
-);
+const { bazaarIds } = collectMarketNeeds(recipes as Recipe[]);
+const neededIds = new Set(bazaarIds);
+
+const REVALIDATE_SECONDS = 3_600;
 
 const getCachedBazaar = unstable_cache(
   async (): Promise<BazaarSnapshot> => {
     const response = await fetch("https://api.hypixel.net/v2/skyblock/bazaar", {
       cache: "no-store",
+      signal: AbortSignal.timeout(60_000),
     });
 
     if (!response.ok) {
@@ -63,12 +63,37 @@ const getCachedBazaar = unstable_cache(
       Object.entries(parsed.products).filter(([id]) => neededIds.has(id)),
     ) as BazaarProducts;
 
-    return { lastUpdated: parsed.lastUpdated, products };
+    const emptyBooks = [...neededIds].filter((id) => {
+      const product = products[id];
+      return (
+        product &&
+        (product.sell_summary.length === 0 || product.buy_summary.length === 0)
+      );
+    });
+    if (emptyBooks.length > 0)
+      console.warn(
+        `Bazaar order book is empty for ${emptyBooks.join(", ")}; recipes relying on that side are dropped`,
+      );
+
+    return {
+      fetchedAt: Date.now(),
+      lastUpdated: parsed.lastUpdated,
+      products,
+    };
   },
   ["bazaar-recipes", [...neededIds].sort().join(",")],
-  { revalidate: 3_600 },
+  { revalidate: REVALIDATE_SECONDS },
 );
 
 export async function getBazaarSnapshot(): Promise<BazaarSnapshot> {
-  return getCachedBazaar();
+  const snapshot = await getCachedBazaar();
+  // unstable_cache serves the stale value when a refresh fails, so a
+  // snapshot older than the revalidate window means the refresh failed.
+  // Throwing fails the regen, so ISR keeps the previous page instead of
+  // publishing refreshed AH prices beside stale Bazaar prices. Mirrors the
+  // check in getAhSnapshot.
+  if (Date.now() - snapshot.fetchedAt > REVALIDATE_SECONDS * 1000) {
+    throw new Error(`Bazaar snapshot is over ${REVALIDATE_SECONDS}s old`);
+  }
+  return snapshot;
 }

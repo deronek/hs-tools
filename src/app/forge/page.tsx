@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 
 import { ForgeCalculator } from "@/components/forge-calculator";
 import recipes from "@/data/recipes.json";
+import { getAhSnapshot } from "@/lib/ah";
 import { getBazaarSnapshot } from "@/lib/bazaar";
 
 export const revalidate = 3_600;
@@ -10,11 +11,18 @@ export const revalidate = 3_600;
 export const metadata: Metadata = {
   title: "SkyBlock Forge Profit Calculator",
   description:
-    "Compare Hypixel SkyBlock forge recipes by bazaar profit, profit per hour, and confidence.",
+    "Compare Hypixel SkyBlock forge recipes by profit, profit per hour, and confidence.",
 };
 
 export default async function Page() {
-  const snapshot = await getBazaarSnapshot();
+  // The two snapshots hit different APIs with independent cache keys, so
+  // they fetch in parallel. Production never renders this page on a
+  // request path: these runs happen only during the build-time prerender
+  // and background ISR revalidation.
+  const [snapshot, ah] = await Promise.all([
+    getBazaarSnapshot(),
+    getAhSnapshot(),
+  ]);
 
   return (
     <main className="container mx-auto flex min-h-0 flex-1 flex-col p-4 pb-6 sm:px-6 sm:pt-6 sm:pb-8 md:px-8">
@@ -22,6 +30,8 @@ export default async function Page() {
         recipes={recipes as Recipe[]}
         products={snapshot.products}
         lastUpdated={snapshot.lastUpdated}
+        ahPrices={ah.items}
+        ahFetchedAt={ah.fetchedAt}
       />
     </main>
   );

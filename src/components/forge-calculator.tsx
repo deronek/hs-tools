@@ -1,6 +1,7 @@
 "use client";
 
 import type {
+  AhPrices,
   BazaarProducts,
   PricedRecipe,
   PricingSettings,
@@ -12,6 +13,7 @@ import {
   columnFilteringFeature,
   columnSizingFeature,
   columnVisibilityFeature,
+  constructSortFn,
   createColumnHelper,
   createFilteredRowModel,
   createPaginatedRowModel,
@@ -85,6 +87,8 @@ type Props = {
   recipes: Recipe[];
   products: BazaarProducts;
   lastUpdated: number;
+  ahPrices: AhPrices;
+  ahFetchedAt: number;
 };
 
 type ForgeColumnMeta = {
@@ -113,15 +117,22 @@ const features = tableFeatures({
 
 const columnHelper = createColumnHelper<typeof features, PricedRecipe>();
 
+// Null means "no sale price": rank it below every priced row descending
+// (above them ascending) instead of letting sortFn_basic compare it as zero.
+const sortFn_nullableNumber = constructSortFn({
+  ...sortFn_basic,
+  resolveDataValue: (value) => value ?? -Infinity,
+});
+
 type ForgeTable = ReactTable<typeof features, PricedRecipe>;
 
 function getMaxValue(
   table: Pick<ForgeTable, "getFilteredRowModel">,
-  valueFor: (recipe: PricedRecipe) => number,
+  valueFor: (recipe: PricedRecipe) => number | null,
 ) {
   return table
     .getFilteredRowModel()
-    .rows.reduce((best, row) => Math.max(best, valueFor(row.original)), 0);
+    .rows.reduce((best, row) => Math.max(best, valueFor(row.original) ?? 0), 0);
 }
 
 const INITIAL_TABLE_STATE = {
@@ -272,6 +283,10 @@ function Profit({
   );
 }
 
+function NoPrice() {
+  return <span className="text-muted-foreground">—</span>;
+}
+
 function MetricBar({
   value,
   max,
@@ -367,6 +382,32 @@ function WikiLink({ name }: { name: string }) {
   );
 }
 
+function AhBadge({
+  tag,
+  name,
+  className,
+}: {
+  tag: string;
+  name: string;
+  className?: string;
+}) {
+  return (
+    <a
+      href={`https://sky.coflnet.com/item/${tag}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Auction House prices for ${name} on SkyCofl`}
+      title={`Auction House prices for ${name} on SkyCofl`}
+      className={cn(
+        "text-muted-foreground hover:text-primary focus-visible:ring-ring inline-flex shrink-0 items-center justify-center rounded-sm border text-[10px] leading-none font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none",
+        className ?? "px-1.5 py-1",
+      )}
+    >
+      AH
+    </a>
+  );
+}
+
 function IngredientList({ recipe }: { recipe: PricedRecipe }) {
   return (
     <div className="space-y-1.5">
@@ -386,6 +427,9 @@ function IngredientList({ recipe }: { recipe: PricedRecipe }) {
               <span className="text-muted-foreground ml-0.5">×</span>
             </span>
             <span className="min-w-0 break-words">{ingredient.name}</span>
+            {ingredient.market === "auction" && ingredient.tag && (
+              <AhBadge tag={ingredient.tag} name={ingredient.name} />
+            )}
           </span>
           <WikiLink name={ingredient.name} />
           <span className="text-right tabular-nums">
@@ -412,30 +456,62 @@ function UnlockText({ hotm }: { hotm: string }) {
   );
 }
 
+function RecipeHeader({
+  recipe,
+  toggleLabel,
+  subtitle,
+}: {
+  recipe: PricedRecipe;
+  toggleLabel: string;
+  subtitle?: React.ReactNode;
+}) {
+  return (
+    <>
+      <CollapsibleTrigger className="group hover:bg-muted/50 -m-1 flex min-h-11 min-w-0 cursor-pointer items-center gap-2 rounded-md p-1 text-left transition-colors">
+        <span className="flex w-7 shrink-0 items-center justify-center">
+          <ItemIcon id={recipe.outputId} />
+        </span>
+        <span className="min-w-0 flex-1">
+          <p className="flex items-center gap-1.5 leading-tight font-semibold break-words">
+            <span className="min-w-0 break-words">{recipe.name}</span>
+          </p>
+          {subtitle && (
+            <p className="text-muted-foreground text-xs leading-4 break-words">
+              {subtitle}
+            </p>
+          )}
+        </span>
+      </CollapsibleTrigger>
+      {/* The AH badge is a link, so it must stay outside the trigger button. */}
+      <span className="flex items-center">
+        {recipe.outputMarket === "auction" && recipe.outputTag && (
+          <AhBadge
+            tag={recipe.outputTag}
+            name={recipe.name}
+            className="size-11 border-0"
+          />
+        )}
+        <WikiLink name={recipe.name} />
+      </span>
+      <CollapsibleTrigger
+        aria-label={`Toggle ${recipe.name} ${toggleLabel}`}
+        className="group hover:bg-muted/50 flex size-11 cursor-pointer items-center justify-center justify-self-end rounded-md transition-colors"
+      >
+        <ChevronDown className="text-muted-foreground size-4 shrink-0 transition-transform group-aria-expanded:rotate-180" />
+      </CollapsibleTrigger>
+    </>
+  );
+}
+
 function RecipeDetails({ recipe }: { recipe: PricedRecipe }) {
   return (
     <Collapsible>
-      <div className="grid min-h-11 grid-cols-[minmax(0,1fr)_44px_4rem] items-center gap-1">
-        <CollapsibleTrigger className="group hover:bg-muted/50 -m-1 flex min-h-11 min-w-0 cursor-pointer items-center gap-2 rounded-md p-1 text-left transition-colors">
-          <span className="flex w-7 shrink-0 items-center justify-center">
-            <ItemIcon id={recipe.outputId} />
-          </span>
-          <span className="min-w-0 flex-1">
-            <p className="leading-tight font-semibold break-words">
-              {recipe.name}
-            </p>
-            <p className="text-muted-foreground text-xs leading-4 break-words">
-              <UnlockText hotm={recipe.hotm} />
-            </p>
-          </span>
-        </CollapsibleTrigger>
-        <WikiLink name={recipe.name} />
-        <CollapsibleTrigger
-          aria-label={`Toggle ${recipe.name} ingredients`}
-          className="group hover:bg-muted/50 flex size-11 cursor-pointer items-center justify-center justify-self-end rounded-md transition-colors"
-        >
-          <ChevronDown className="text-muted-foreground size-4 shrink-0 transition-transform group-data-[panel-open]:rotate-180" />
-        </CollapsibleTrigger>
+      <div className="grid min-h-11 grid-cols-[minmax(0,1fr)_auto_4rem] items-center gap-1">
+        <RecipeHeader
+          recipe={recipe}
+          toggleLabel="ingredients"
+          subtitle={<UnlockText hotm={recipe.hotm} />}
+        />
       </div>
       <CollapsibleContent>
         <div className="pt-2">
@@ -467,6 +543,11 @@ function ConfidenceInfoPopover() {
           A snapshot score from order depth (40%), daily volume (35%), and
           bid/ask spread (25%). Order or offer fills multiply it by 0.85. It is
           not a guarantee of fill.
+        </p>
+        <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+          Auction House items score on price stability, how much sells per day,
+          and how old the price data is. AH prices are market sale estimates
+          from Coflnet, not order book quotes.
         </p>
       </PopoverContent>
     </Popover>
@@ -663,15 +744,19 @@ const columns = columnHelper.columns([
   }),
   columnHelper.accessor("revenue", {
     header: "Revenue",
-    cell: ({ getValue, table }) => (
-      <MetricBar
-        value={getValue()}
-        max={getMaxValue(table, (recipe) => recipe.revenue)}
-      >
-        <Coins value={getValue()} />
-      </MetricBar>
-    ),
-    sortFn: sortFn_basic,
+    cell: ({ getValue, table }) => {
+      const value = getValue();
+      if (value == null) return <NoPrice />;
+      return (
+        <MetricBar
+          value={value}
+          max={getMaxValue(table, (recipe) => recipe.revenue)}
+        >
+          <Coins value={value} />
+        </MetricBar>
+      );
+    },
+    sortFn: sortFn_nullableNumber,
     sortDescFirst: true,
     size: 108,
     enableGlobalFilter: false,
@@ -682,13 +767,17 @@ const columns = columnHelper.columns([
   }),
   columnHelper.accessor("profit", {
     header: "Profit",
-    cell: ({ getValue, table }) => (
-      <Profit
-        value={getValue()}
-        max={getMaxValue(table, (recipe) => recipe.profit)}
-      />
-    ),
-    sortFn: sortFn_basic,
+    cell: ({ getValue, table }) => {
+      const value = getValue();
+      if (value == null) return <NoPrice />;
+      return (
+        <Profit
+          value={value}
+          max={getMaxValue(table, (recipe) => recipe.profit)}
+        />
+      );
+    },
+    sortFn: sortFn_nullableNumber,
     sortDescFirst: true,
     size: 110,
     enableGlobalFilter: false,
@@ -696,13 +785,17 @@ const columns = columnHelper.columns([
   }),
   columnHelper.accessor("profitPerHour", {
     header: "Profit/hr",
-    cell: ({ getValue, table }) => (
-      <Profit
-        value={getValue()}
-        max={getMaxValue(table, (recipe) => recipe.profitPerHour)}
-      />
-    ),
-    sortFn: sortFn_basic,
+    cell: ({ getValue, table }) => {
+      const value = getValue();
+      if (value == null) return <NoPrice />;
+      return (
+        <Profit
+          value={value}
+          max={getMaxValue(table, (recipe) => recipe.profitPerHour)}
+        />
+      );
+    },
+    sortFn: sortFn_nullableNumber,
     sortDescFirst: true,
     size: 130,
     enableGlobalFilter: false,
@@ -1002,31 +1095,25 @@ function MobileCards({ table }: { table: ForgeTable }) {
             className="rounded-md border p-3"
           >
             <Collapsible>
-              <div className="grid min-h-11 grid-cols-[minmax(0,1fr)_44px_4rem] items-center gap-1">
-                <CollapsibleTrigger className="group hover:bg-muted/50 -m-1 flex min-h-11 min-w-0 cursor-pointer items-center gap-2 rounded-md p-1 text-left transition-colors">
-                  <span className="flex w-7 shrink-0 items-center justify-center">
-                    <ItemIcon id={recipe.outputId} />
-                  </span>
-                  <p className="min-w-0 text-sm font-semibold break-words">
-                    {recipe.name}
-                  </p>
-                </CollapsibleTrigger>
-                <WikiLink name={recipe.name} />
-                <CollapsibleTrigger
-                  aria-label={`Toggle ${recipe.name} details`}
-                  className="group hover:bg-muted/50 flex size-11 cursor-pointer items-center justify-center justify-self-end rounded-md transition-colors"
-                >
-                  <ChevronDown className="text-muted-foreground size-4 shrink-0 transition-transform group-aria-expanded:rotate-180" />
-                </CollapsibleTrigger>
+              <div className="grid min-h-11 grid-cols-[minmax(0,1fr)_auto_4rem] items-center gap-1">
+                <RecipeHeader recipe={recipe} toggleLabel="details" />
               </div>
               <CollapsibleContent>
                 <div className="mt-2.5 space-y-2">
                   <div className="flex items-center justify-between gap-3 text-sm">
-                    <Profit value={recipe.profit} className="w-auto" />
-                    <span className="text-muted-foreground tabular-nums">
-                      <Coins value={recipe.profitPerHour} />
-                      /hr
-                    </span>
+                    {recipe.profit == null ? (
+                      <span className="text-muted-foreground">
+                        No sale price
+                      </span>
+                    ) : (
+                      <>
+                        <Profit value={recipe.profit} className="w-auto" />
+                        <span className="text-muted-foreground tabular-nums">
+                          <Coins value={recipe.profitPerHour ?? 0} />
+                          /hr
+                        </span>
+                      </>
+                    )}
                   </div>
                   <div className="text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm">
                     <span className="min-w-0 break-words">
@@ -1058,15 +1145,21 @@ function MobileCards({ table }: { table: ForgeTable }) {
   );
 }
 
-export function ForgeCalculator({ recipes, products, lastUpdated }: Props) {
+export function ForgeCalculator({
+  recipes,
+  products,
+  lastUpdated,
+  ahPrices,
+  ahFetchedAt,
+}: Props) {
   const [settings, setSettings] = useState<PricingSettings>(DEFAULT_SETTINGS);
 
   const priced = useMemo(
     () =>
       recipes
-        .map((recipe) => priceRecipe(recipe, products, settings))
+        .map((recipe) => priceRecipe(recipe, products, settings, ahPrices))
         .filter((recipe): recipe is PricedRecipe => recipe !== null),
-    [recipes, products, settings],
+    [recipes, products, settings, ahPrices],
   );
 
   const eligible = useMemo(
@@ -1099,12 +1192,14 @@ export function ForgeCalculator({ recipes, products, lastUpdated }: Props) {
         </h1>
         <p className="text-lg">
           Find the most profitable Hypixel SkyBlock forge recipes from live
-          bazaar prices.
+          bazaar and auction house prices.
         </p>
       </header>
 
       <p className="text-muted-foreground text-sm">
-        Prices updated <RelativeTime timestamp={lastUpdated} />
+        Bazaar prices updated <RelativeTime timestamp={lastUpdated} />
+        <span className="select-none"> · </span>
+        Auction House snapshot fetched <RelativeTime timestamp={ahFetchedAt} />
       </p>
 
       <section className="py-1">

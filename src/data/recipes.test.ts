@@ -10,7 +10,7 @@ const ingredients = (name: string) =>
 
 describe("recipe data", () => {
   it("contains only the supported recipes", () => {
-    expect(appRecipes).toHaveLength(30);
+    expect(appRecipes).toHaveLength(92);
     expect(
       appRecipes.every(
         ({ outputId, ingredients }) =>
@@ -19,6 +19,24 @@ describe("recipe data", () => {
       ),
     ).toBe(true);
     expect(appRecipes.every((recipe) => !("isSimple" in recipe))).toBe(true);
+  });
+
+  it("labels every recipe and ingredient with its market", () => {
+    expect(
+      appRecipes.every(
+        (recipe) =>
+          (recipe.outputMarket === "bazaar" ||
+            recipe.outputMarket === "auction") &&
+          recipe.ingredients.every(({ market, tag }) =>
+            market === "bazaar"
+              ? tag === undefined
+              : market === "auction" && typeof tag === "string",
+          ),
+      ),
+    ).toBe(true);
+    expect(appRecipes.some((recipe) => recipe.outputMarket === "auction")).toBe(
+      true,
+    );
   });
 
   it("includes every ingredient from flat Cost lists", () => {

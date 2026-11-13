@@ -43,6 +43,18 @@ export function Footer() {
 
           <div className="text-center lg:text-right">
             <p className="text-muted-foreground text-xs">
+              AH prices provided by{" "}
+              <a
+                href="https://sky.coflnet.com/data"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary transition-colors hover:underline"
+                aria-label="Visit SkyCofl, the Auction House data source"
+              >
+                SkyCofl
+              </a>
+            </p>
+            <p className="text-muted-foreground text-xs">
               SkyBlock Forge Profit Calculator is not affiliated with or
               endorsed by Hypixel Studios.
             </p>

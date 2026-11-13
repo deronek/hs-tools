@@ -1,12 +1,22 @@
 import fs from "node:fs";
 import prettier from "prettier";
 
+import {
+  createPartClassifier,
+  EXCLUSION_BUCKET_ORDER,
+  EXCLUSION_MESSAGES,
+} from "./lib/recipe-parts.mjs";
+import { percentile } from "./lib/stats.mjs";
+
 const root = process.cwd();
 const readJson = (file) =>
   JSON.parse(fs.readFileSync(`${root}/${file}`, "utf8").replace(/^\uFEFF/, ""));
 const raw = readJson("data/raw/recipes-raw.json");
 const bazaar = readJson("data/raw/bazaar-sample.json");
 const products = bazaar.products;
+const coflnetItems = readJson("data/raw/coflnet-items.json");
+const change = readJson("data/raw/coflnet-change.json");
+const ahNames = readJson("src/data/ah-names.json");
 
 const units = {
   day: 86400,
@@ -29,31 +39,74 @@ function parseDuration(text) {
   return total;
 }
 
-const recipes = raw.map((recipe) => {
-  const reasons = [];
-  if (!recipe.outputId) {
-    reasons.push(
-      "Output has no Hypixel item ID, so it cannot be matched to a bazaar product.",
-    );
-  } else if (!products[recipe.outputId]) {
-    reasons.push(
-      "Output is not bazaar-tradeable; it needs Auction House pricing.",
-    );
-  }
+const flagsByTag = new Map(
+  coflnetItems.map((item) => [
+    item.tag,
+    (item.flags ?? "NONE")
+      .split(",")
+      .map((flag) => flag.trim())
+      .filter(Boolean),
+  ]),
+);
 
-  for (const ingredient of recipe.ingredients) {
-    if (ingredient.name === "Coins") {
-      reasons.push("Requires a direct coin payment.");
-    } else if (!ingredient.id) {
-      reasons.push(`Ingredient ${ingredient.name} has no Hypixel item ID.`);
-    } else if (!products[ingredient.id]) {
-      reasons.push(`Ingredient ${ingredient.name} is not bazaar-tradeable.`);
+const isAuctionFlagged = (tag) =>
+  (flagsByTag.get(tag) ?? []).includes("AUCTION");
+
+const hasLiveMarket = (tag) =>
+  isAuctionFlagged(tag) && (change[tag]?.now > 0 || change[tag]?.recent > 0);
+
+const { classifyPart } = createPartClassifier({
+  products,
+  ahNames,
+  isAuctionFlagged,
+  hasLiveMarket,
+});
+
+const recipes = raw.map((recipe) => {
+  const exclusions = [];
+
+  const outputPart = { name: recipe.name, id: recipe.outputId };
+  let outputMarket = null;
+  let outputTag;
+  if (!recipe.outputId) {
+    exclusions.push({ code: "no-item-id", label: "Output", name: "" });
+  } else {
+    const classified = classifyPart(outputPart);
+    if ("excluded" in classified) {
+      exclusions.push({
+        code: classified.excluded,
+        label: "Output",
+        name: recipe.name,
+      });
+    } else {
+      outputMarket = classified.market;
+      outputTag = classified.tag;
     }
   }
 
+  const parts = recipe.ingredients.map((ingredient) => {
+    const classified = classifyPart(ingredient);
+    if ("excluded" in classified) {
+      exclusions.push({
+        code: classified.excluded,
+        label: "Ingredient",
+        name: ingredient.name,
+      });
+      return { ...ingredient, market: null, tag: undefined };
+    }
+    return { ...ingredient, ...classified };
+  });
+
   if (recipe.ingredients.length === 0)
-    reasons.push("No direct ingredients were parsed.");
-  const unique = [...new Set(reasons)];
+    exclusions.push({ code: "no-ingredients", label: "", name: "" });
+
+  const messages = [
+    ...new Set(
+      exclusions.map(({ code, label, name }) =>
+        EXCLUSION_MESSAGES[code](label, name),
+      ),
+    ),
+  ];
 
   return {
     section: recipe.section,
@@ -63,20 +116,27 @@ const recipes = raw.map((recipe) => {
     durationText: recipe.durationText,
     durationSeconds: parseDuration(recipe.durationText),
     hotm: recipe.hotm,
-    ingredients: recipe.ingredients.map(({ name, qty, id }) => ({
+    outputMarket,
+    outputTag,
+    ingredients: parts.map(({ name, qty, id, market, tag }) => ({
       name,
       qty,
       id,
+      market,
+      tag,
     })),
-    isSimple: unique.length === 0,
-    reason: unique.length
-      ? unique.join(" ")
-      : "Direct bazaar inputs and bazaar output.",
+    exclusionCodes: exclusions.map(({ code }) => code),
+    isSupported: exclusions.length === 0,
+    reason: messages.length
+      ? messages.join(" ")
+      : outputMarket === "auction" || parts.some((l) => l.market === "auction")
+        ? "Prices from the Auction House."
+        : "Direct bazaar inputs and bazaar output.",
   };
 });
 
 const appRecipes = recipes
-  .filter((recipe) => recipe.isSimple)
+  .filter((recipe) => recipe.isSupported)
   .map((recipe) => ({
     section: recipe.section,
     name: recipe.name,
@@ -84,30 +144,50 @@ const appRecipes = recipes
     outputQty: recipe.outputQty,
     durationSeconds: recipe.durationSeconds,
     hotm: recipe.hotm,
-    ingredients: recipe.ingredients,
+    outputMarket: recipe.outputMarket,
+    ...(recipe.outputTag ? { outputTag: recipe.outputTag } : {}),
+    ingredients: recipe.ingredients.map(({ name, qty, id, market, tag }) => ({
+      name,
+      qty,
+      id,
+      market,
+      ...(tag ? { tag } : {}),
+    })),
   }));
+
+// Every supported auction part must carry its tag into the snapshot.
+for (const recipe of appRecipes) {
+  if (recipe.outputMarket === "auction" && !recipe.outputTag)
+    throw new Error(`Auction output without tag: ${recipe.name}`);
+  for (const ingredient of recipe.ingredients) {
+    if (ingredient.market === "auction" && !ingredient.tag)
+      throw new Error(`Auction ingredient without tag: ${recipe.name}`);
+    if (!["bazaar", "auction"].includes(ingredient.market))
+      throw new Error(`Unclassified part in supported recipe: ${recipe.name}`);
+  }
+}
 
 fs.mkdirSync(`${root}/src/data`, { recursive: true });
 fs.writeFileSync(
   `${root}/src/data/recipes.json`,
-  JSON.stringify(appRecipes, null, 2),
+  JSON.stringify(appRecipes, null, 2) + "\n",
 );
 
-const simple = recipes.filter((recipe) => recipe.isSimple).length;
+const supported = recipes.filter((recipe) => recipe.isSupported).length;
 const rows = recipes
   .map(
     (recipe) =>
-      `| ${recipe.section} | ${recipe.name} | ${recipe.durationText} | ${recipe.isSimple ? "Simple" : "Complex"} | ${recipe.reason.replaceAll("|", "\\|")} |`,
+      `| ${recipe.section} | ${recipe.name} | ${recipe.durationText} | ${recipe.isSupported ? "In app" : "Excluded"} | ${recipe.reason.replaceAll("|", "\\|")} |`,
   )
   .join("\n");
 
 const docs = `# Recipe coverage
 
-The app snapshot contains ${simple} supported recipes from ${recipes.length} recipes on the wiki. A recipe is supported when its output and every direct ingredient have a bazaar product, with no coin cost or missing item ID. This report lists the excluded recipes and the reason for each exclusion.
+The app snapshot contains ${supported} supported recipes from ${recipes.length} recipes on the wiki. A recipe is supported when its output and every direct ingredient have a market price: a Bazaar product or an Auction House item priced through the Coflnet API. Recipes with direct coin costs or without Hypixel item IDs (pets) stay excluded. This report lists every recipe and the reason each excluded one is unsupported.
 
-The excluded recipes need Auction House pricing, support for crafted ingredients, coin-cost handling, or item IDs for pets and pet items.
+The excluded recipes need coin-cost support, Coflnet identity work for pets, or a market for an untradeable item.
 
-| Section | Recipe | Duration | PoC status | Why |
+| Section | Recipe | Duration | Status | Why |
 | --- | --- | --- | --- | --- |
 ${rows}
 `;
@@ -120,6 +200,53 @@ const formattedDocs = await prettier.format(docs, {
 });
 fs.writeFileSync(`${root}/docs/recipes.md`, formattedDocs);
 
+// Coverage report: each excluded recipe lands in exactly one bucket, its
+// highest-priority exclusion code.
+const sectionStats = Object.groupBy(recipes, (recipe) => recipe.section);
+for (const [section, sectionRecipes] of Object.entries(sectionStats)) {
+  const inApp = sectionRecipes.filter((r) => r.isSupported).length;
+  console.log(
+    `${section}: ${inApp} in app, ${sectionRecipes.length - inApp} excluded`,
+  );
+}
+
+const excluded = recipes.filter((recipe) => !recipe.isSupported);
+const bucketOf = (recipe) => {
+  const codes = recipe.exclusionCodes;
+  return (
+    EXCLUSION_BUCKET_ORDER.find((code) => codes.includes(code)) ?? codes[0]
+  );
+};
+const bucketCount = (code) =>
+  excluded.filter((recipe) => bucketOf(recipe) === code).length;
 console.log(
-  `recipes ${recipes.length}, simple ${simple}, complex ${recipes.length - simple}`,
+  `coverage ${supported}/${recipes.length} in app; excluded: ${bucketCount("coin-cost")} coin cost, ${bucketCount("no-item-id")} no item ID (pets), ${bucketCount("no-price-data")} no price data, ${bucketCount("no-market")} no market`,
 );
+
+// Calibration print for the AH stability clip constant: relative drift
+// between the current price and the recent-window typical price.
+const drifts = appRecipes
+  .flatMap((recipe) =>
+    [recipe.outputMarket === "auction" ? recipe.outputTag : null]
+      .concat(
+        recipe.ingredients
+          .filter((l) => l.market === "auction")
+          .map((l) => l.tag),
+      )
+      .filter(Boolean),
+  )
+  .filter((tag, index, tags) => tags.indexOf(tag) === index)
+  .map((tag) => {
+    const entry = change[tag];
+    return entry?.now > 0 && entry?.recent > 0
+      ? Math.abs(entry.now - entry.recent) / entry.recent
+      : null;
+  })
+  .filter((drift) => drift != null)
+  .sort((a, b) => a - b);
+if (drifts.length > 0) {
+  const pct = (v) => `${(v * 100).toFixed(1)}%`;
+  console.log(
+    `AH now-vs-recent drift p50 ${pct(percentile(drifts, 0.5))}, p90 ${pct(percentile(drifts, 0.9))}, p99 ${pct(percentile(drifts, 0.99))}, max ${pct(drifts.at(-1))} over ${drifts.length} tags`,
+  );
+}
