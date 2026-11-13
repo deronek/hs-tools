@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import type { AhPrices, BazaarProducts, Recipe } from "./forge";
 import {
   AH_COLLECTION_TAX_MIN,
+  ahCollectionTax,
+  ahCreationFeeRate,
   collectMarketNeeds,
   DEFAULT_SETTINGS,
   priceRecipe,
@@ -157,22 +159,46 @@ describe("auction house pricing", () => {
     expect(priced?.cost).toBe(200);
   });
 
-  it("applies the creation fee and the 1M collection tax to AH revenue", () => {
+  it("applies the 2% creation fee and the 1M collection tax to AH revenue", () => {
     const priced = priceRecipe(ahRecipe, products, DEFAULT_SETTINGS, ahPrices);
 
     const payout = 2_000_000;
     expect(payout).toBeGreaterThanOrEqual(AH_COLLECTION_TAX_MIN);
-    expect(priced?.revenue).toBeCloseTo(payout * 0.97);
+    // 1% creation fee (under 10M) + 1% collection tax
+    expect(priced?.revenue).toBeCloseTo(payout * 0.98);
   });
 
-  it("skips the collection tax when the payout is under 1M", () => {
+  it("skips the collection tax and charges the 1% bracket under 1M", () => {
     const cheap: AhPrices = {
       ...ahPrices,
       OUT_TAG: { ...ahPrices.OUT_TAG, price: 500_000 },
     };
     const priced = priceRecipe(ahRecipe, products, DEFAULT_SETTINGS, cheap);
 
-    expect(priced?.revenue).toBeCloseTo(500_000 * 0.98);
+    expect(priced?.revenue).toBeCloseTo(500_000 * 0.99);
+  });
+
+  it("charges the BIN creation fee by wiki price bracket", () => {
+    expect(ahCreationFeeRate(9_999_999)).toBe(0.01);
+    expect(ahCreationFeeRate(10_000_000)).toBe(0.02);
+    expect(ahCreationFeeRate(100_000_000)).toBe(0.02);
+    expect(ahCreationFeeRate(100_000_001)).toBe(0.025);
+  });
+
+  it("caps the collection tax so proceeds never fall below 1M", () => {
+    expect(ahCollectionTax(1_000_000)).toBe(0);
+    expect(ahCollectionTax(1_005_000)).toBe(5_000); // capped, not 1%
+    expect(ahCollectionTax(1_020_000)).toBe(10_200); // 1% above the cap band
+  });
+
+  it("prices a top-bracket output with the 2.5% fee", () => {
+    const expensive: AhPrices = {
+      ...ahPrices,
+      OUT_TAG: { ...ahPrices.OUT_TAG, price: 200_000_000 },
+    };
+    const priced = priceRecipe(ahRecipe, products, DEFAULT_SETTINGS, expensive);
+
+    expect(priced?.revenue).toBeCloseTo(200_000_000 * 0.965);
   });
 
   it("keeps AH revenue independent of the output mode toggle", () => {
@@ -221,7 +247,8 @@ describe("auction house pricing", () => {
     const priced = priceRecipe(mixed, products, DEFAULT_SETTINGS, ahPrices);
 
     expect(priced?.cost).toBe(200); // bazaar instant buy
-    expect(priced?.revenue).toBeCloseTo(2_000_000 * 0.97);
+    // 1% creation fee (under 10M) + 1% collection tax
+    expect(priced?.revenue).toBeCloseTo(2_000_000 * 0.98);
     expect(priced?.confidence).toBeGreaterThan(0);
     expect(priced?.confidence).toBeLessThanOrEqual(100);
   });

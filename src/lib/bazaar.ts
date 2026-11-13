@@ -34,12 +34,16 @@ const ResponseSchema = z.object({
 });
 
 export type BazaarSnapshot = {
+  /** When this snapshot was fetched, used for the staleness check. */
+  fetchedAt: number;
   lastUpdated: number;
   products: BazaarProducts;
 };
 
 const { bazaarIds } = collectMarketNeeds(recipes as Recipe[]);
 const neededIds = new Set(bazaarIds);
+
+const REVALIDATE_SECONDS = 3_600;
 
 const getCachedBazaar = unstable_cache(
   async (): Promise<BazaarSnapshot> => {
@@ -71,12 +75,25 @@ const getCachedBazaar = unstable_cache(
         `Bazaar order book is empty for ${emptyBooks.join(", ")}; recipes relying on that side are dropped`,
       );
 
-    return { lastUpdated: parsed.lastUpdated, products };
+    return {
+      fetchedAt: Date.now(),
+      lastUpdated: parsed.lastUpdated,
+      products,
+    };
   },
   ["bazaar-recipes", [...neededIds].sort().join(",")],
-  { revalidate: 3_600 },
+  { revalidate: REVALIDATE_SECONDS },
 );
 
 export async function getBazaarSnapshot(): Promise<BazaarSnapshot> {
-  return getCachedBazaar();
+  const snapshot = await getCachedBazaar();
+  // unstable_cache serves the stale value when a refresh fails, so a
+  // snapshot older than the revalidate window means the refresh failed.
+  // Throwing fails the regen, so ISR keeps the previous page instead of
+  // publishing refreshed AH prices beside stale Bazaar prices. Mirrors the
+  // check in getAhSnapshot.
+  if (Date.now() - snapshot.fetchedAt > REVALIDATE_SECONDS * 1000) {
+    throw new Error(`Bazaar snapshot is over ${REVALIDATE_SECONDS}s old`);
+  }
+  return snapshot;
 }

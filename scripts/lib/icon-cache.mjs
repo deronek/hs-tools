@@ -1,8 +1,9 @@
 /**
  * Helpers for scripts/update-icons.mjs. The committed icon set is sticky:
- * icons are rewritten only when their stored size can actually shrink, so
- * upstream variant flapping between renders never rewrites committed
- * files. Filenames stay content-hashed over the final WebP bytes.
+ * icons are rewritten only when their art differs from the committed file
+ * at the pixel level after normalization, so container, encoder, and
+ * animation variant flapping never rewrites committed files. Filenames
+ * stay content-hashed over the final WebP bytes.
  */
 
 /** Common Minecraft item texture sizes, smallest first. */

@@ -12,7 +12,7 @@
 // per item, since our stability score relies on those two staying close.
 import fs from "node:fs";
 
-import { ahFeeRate } from "../src/lib/forge.ts";
+import { ahFees } from "../src/lib/forge.ts";
 import { percentile } from "./lib/stats.mjs";
 
 const readJson = (file) =>
@@ -56,7 +56,7 @@ for (const flip of flips) {
   compared++;
 
   const payout = entry.now * recipe.outputQty;
-  const ourRevenue = payout * (1 - ahFeeRate(payout));
+  const ourRevenue = payout - ahFees(payout);
 
   const missingParts = [];
   let ourCost = 0;

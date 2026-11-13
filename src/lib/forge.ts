@@ -64,11 +64,11 @@ export const DEFAULT_SETTINGS: PricingSettings = {
 
 /**
  * Auction House fees, from the wiki (Auction House → Fees and Taxes).
- * Listing a BIN costs a creation fee of about 2%; collecting a sale of
- * 1,000,000 coins or more adds a 1% tax. Derpy's doubled-tax window is
- * not modeled.
+ * A BIN listing pays a creation fee that scales with the item price (1%
+ * below 10,000,000 coins, 2% up to 100,000,000, 2.5% above), and collecting
+ * a sale above 1,000,000 coins adds a 1% tax capped so the proceeds never
+ * fall below 1,000,000 coins. Derpy's doubled-tax window is not modeled.
  */
-export const AH_CREATION_FEE_RATE = 0.02;
 export const AH_COLLECTION_TAX_RATE = 0.01;
 export const AH_COLLECTION_TAX_MIN = 1_000_000;
 
@@ -261,12 +261,28 @@ function priceAgeScore(price: AhPrice) {
   return Math.exp(-price.priceAgeMinutes / 60 / 6);
 }
 
-/** Shared with scripts/cross-check-flips.mjs, which validates against this exact model. */
-export function ahFeeRate(payout: number) {
-  return (
-    AH_CREATION_FEE_RATE +
-    (payout >= AH_COLLECTION_TAX_MIN ? AH_COLLECTION_TAX_RATE : 0)
+/** BIN creation fee bracket for a payout, from the wiki (Fees and Taxes). */
+export function ahCreationFeeRate(payout: number) {
+  if (payout < 10_000_000) return 0.01;
+  if (payout <= 100_000_000) return 0.02;
+  return 0.025;
+}
+
+/**
+ * Collection tax on a payout: 1% only above 1,000,000 coins, capped so the
+ * proceeds never fall below 1,000,000.
+ */
+export function ahCollectionTax(payout: number) {
+  if (payout <= AH_COLLECTION_TAX_MIN) return 0;
+  return Math.min(
+    payout * AH_COLLECTION_TAX_RATE,
+    payout - AH_COLLECTION_TAX_MIN,
   );
+}
+
+/** Shared with scripts/cross-check-flips.mjs, which validates against this exact model. */
+export function ahFees(payout: number) {
+  return payout * ahCreationFeeRate(payout) + ahCollectionTax(payout);
 }
 
 type PartScore = {
@@ -317,7 +333,7 @@ function priceOutputPart(
     }
     const payout = entry.price * recipe.outputQty;
     return {
-      revenue: payout * (1 - ahFeeRate(payout)),
+      revenue: payout - ahFees(payout),
       score: auctionScore(entry, recipe.outputQty),
     };
   }

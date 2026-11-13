@@ -101,7 +101,7 @@ The mode toggles apply only to Bazaar items; AH items are buy-nows and sell-at-m
 Revenue is gross output value minus market-specific fees:
 
 - Bazaar output: gross minus the bazaar tax. All bazaar sales carry a 1.25% tax, and the Bazaar Flipper community upgrade reduces it by 0.125% per level up to -0.25%, making the tax 1%. The settings select offers exactly the values that can occur in game: 1.25% (no perk), 1.125% (Bazaar Flipper 1), and 1% (Bazaar Flipper 2). The default is 1.25%.
-- Auction House output: `now × qty` minus a BIN creation fee of 2% and, when the payout reaches 1,000,000 coins, the 1% collection tax ([Auction House → Fees and Taxes](https://hypixelskyblock.minecraft.wiki/w/Auction_House)). Both rates are constants (`AH_CREATION_FEE_RATE`, `AH_COLLECTION_TAX_RATE` in `src/lib/forge.ts`); the wiki brackets the creation fee at 2-5% by type and price bracket, and 2% is the common BIN case. Derpy's doubled-tax mayor window is not modeled.
+- Auction House output: `now × qty` minus the BIN creation fee (1% below 10,000,000 coins, 2% up to 100,000,000, 2.5% above) and, when the payout exceeds 1,000,000 coins, the 1% collection tax capped so proceeds never fall below 1,000,000 ([Auction House → Fees and Taxes](https://hypixelskyblock.minecraft.wiki/w/Auction_House)). The brackets live in `ahCreationFeeRate` and `ahCollectionTax` in `src/lib/forge.ts`. Derpy's doubled-tax mayor window is not modeled.
 
 The AH price shown per row is Coflnet's `now` field: the current market sale price estimate, not a lowest-BIN quote. A lone floor listing is a fragile anchor and would put per-item listing calls on the render path. Each AH item links to `https://sky.coflnet.com/item/{tag}` so a user can audit where the number came from. When `now` is missing, the item prices from `recent` (the recent-window typical price); an item with neither value is treated as unpriced. Per-item listing depth from Coflnet's `/analysis/live` could sharpen the confidence score later, but only behind a lazy cache, never on the render path.
 
@@ -149,7 +149,7 @@ Rate limits are per IP: 30 requests / 10 s and 100 requests / 1 min ([Coflnet AP
 
 Attribution, per Coflnet's rules: the app footer links to `https://sky.coflnet.com/data` ("AH prices provided by SkyCofl") on every page, and each AH item links to `https://sky.coflnet.com/item/{tag}` where the item's name is displayed. HS Tools is free and non-commercial, so no Premium+ subscription is required.
 
-Neither source has an offline fallback: a failed Bazaar or Coflnet request fails the page render. The ISR cache then keeps serving the last fully priced page while revalidation retries on the next request, so an outage shows stale prices instead of a degraded calculator. The NEU fallback is best-effort and losing it only marks the affected items as unpriced.
+Neither source has an offline fallback: a failed Bazaar or Coflnet request fails the page render. `unstable_cache` serves the stale value when a refresh fails, so both snapshot getters throw when their cached snapshot is older than the revalidate window. The ISR cache then keeps serving the last fully priced page while revalidation retries on the next request, so an outage shows stale prices instead of a degraded calculator. The NEU fallback is best-effort and losing it only marks the affected items as unpriced.
 
 ## Checking against Coflnet's calculator
 
@@ -181,7 +181,7 @@ Unit tests cover the AH fee branches, the unpriced-output and unpriced-ingredien
 - Pets have no Hypixel item ID; their Coflnet tags exist and live in `ah-names.json`, but identity work (icons, the pet price-scale quirk) is a follow-up batch. Their recipes, plus Bejeweled Collar, exit at the no-item-ID check before `ah-names.json` is consulted, so those mappings are inert until that work lands.
 - Perfect Gemstones, Relic of Power, and Secret Railroad Pass have an ingredient or output with no market and cannot be priced honestly.
 - AH prices are Coflnet estimates, not order-book quotes; on fast-moving items they can trail the market until the next refresh, and the confidence score's price-age term reflects that.
-- The 2% BIN creation fee is a constant; the wiki brackets it at 2-5% by type and price bracket, and Derpy's tax window is unmodeled.
+- AH fees follow the wiki's BIN price brackets and the capped collection tax; Derpy's doubled-tax mayor window is unmodeled.
 - Item icons are fetched from SkyCrypt, with Coflnet as a fallback, during manual updates. If an upstream icon changes or an item ID is dropped, rerun `pnpm icons:update`; the recipe row still works if an icon file is missing.
 - There is no historical price chart, no auction history, and no saved user settings.
 - There is no theme toggle; only dark mode is supported.
